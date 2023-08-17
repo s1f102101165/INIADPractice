@@ -1,0 +1,29 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>YouTubeチャット取得テストページ</title>
+
+    <script type="text/javascript" src="{% static 'chatapp/js/getchattest.js' %}"></script>
+  </head>
+
+  <body>
+    <h1>YouTubeチャット取得テストページ</h1>
+    <form>
+      <label for="apikey">Youtube API Key = </label>
+      <input id="apikey" type="text">
+      <br>
+
+      <label for="youtubeurl">ライブ配信のURL末尾 https://www.youtube.com/watch?v=</label>
+      <input id="youtubeurl" type="text">
+      <br>
+
+      <button type="button" onclick="getchatapi()">コメント取得開始</button>
+    </form>
+    <hr>
+
+    <ul id="commentlist"></ul>
+  </body>
+</html>
