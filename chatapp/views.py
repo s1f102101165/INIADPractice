@@ -18,6 +18,8 @@ def getchattest(request):
 # テストページで使えるようにAPI化したもの
 def api_getchat(request):#, yt_url, nextPageToken
     nextPageToken = None
+    if ("nexttoken" in request.GET):
+        nextPageToken = request.GET["nexttoken"]
     video_id = request.GET["youtubeurl"]
     YT_API_KEY = request.GET["apikey"]
 
@@ -31,12 +33,13 @@ def api_getchat(request):#, yt_url, nextPageToken
 
 
 #==========☆　YouTubeコメント欄取得関数 ☆==========
+MAX_GET_CHAT = 10 #1度の取得最大数
 
 # チャットを取得する関数本体
 def get_chat(video_id, pageToken, YT_API_KEY):
     chat_id  = get_chat_id(video_id, YT_API_KEY)
     url    = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
-    params = {'key': YT_API_KEY, 'liveChatId': chat_id, 'part': 'id,snippet,authorDetails'}
+    params = {'key': YT_API_KEY, 'liveChatId': chat_id, 'part': 'id,snippet,authorDetails', 'maxResults':MAX_GET_CHAT}
     if type(pageToken) == str:
         params['pageToken'] = pageToken
 
@@ -57,9 +60,7 @@ def get_chat_id(video_id, YT_API_KEY):
     liveStreamingDetails = data['items'][0]['liveStreamingDetails']
     if 'activeLiveChatId' in liveStreamingDetails.keys():
         chat_id = liveStreamingDetails['activeLiveChatId']
-        print('get_chat_id done!')
     else:
         chat_id = None
-        print('NOT live')
 
     return chat_id
