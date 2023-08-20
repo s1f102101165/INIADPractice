@@ -1,15 +1,19 @@
-// nexttokenはひとまずグローバル変数で管理。もっと良い方法があれば変えるかも..
-let nexttoken = null
 let intervalId
+
+
+
+// views.pyのAPI呼び出し
+function resete_api(){
+    apiurl = "/api/resetapi/"
+    
+
+    fetch(apiurl)
+}
 
 
 // views.pyのAPI呼び出し
 function use_getchatapi(apikey, youtubeurl){
-    if(nexttoken != null){
-        apiurl = "/api/getchatapi/?apikey=" + apikey +"&youtubeurl=" + youtubeurl + "&nexttoken=" + nexttoken
-    }else{
-        apiurl = "/api/getchatapi/?apikey=" + apikey +"&youtubeurl=" + youtubeurl
-    }
+    apiurl = "/api/getchatapi/?apikey=" + apikey +"&youtubeurl=" + youtubeurl
 
     fetch(apiurl)
     .then(response => response.json())
@@ -21,28 +25,22 @@ function use_getchatapi(apikey, youtubeurl){
 
 // use_getchatapiでJSONが取得できたら実行
 function callback(json){
+    console.log(json)
 
-    // 新しいコメントが存在したら
-    if ("pageInfo" in json){
 
-        // 取得できたコメント数取得
-        n = json["pageInfo"]["resultsPerPage"]
+    // 取得できたコメント数取得
+    n = json.length
 
+    
+    // コメントを表示していく
+    for(let i=0; i< n; i++){
+        // JSONから必要なもの抽出
+        username = json[i]["name"]
+        text = json[i]["body"]
         
-        // コメントを表示していく
-        for(let i=0; i< n-1; i++){
-            // JSONから必要なもの抽出
-            username = json["items"][i]["authorDetails"]["displayName"]
-            text = json["items"][i]["snippet"]["textMessageDetails"]["messageText"]
-            
-            // li要素追加
-            const newli = document.createElement("li")
-            newli.textContent = username + "：" + text
-            chatlist = document.getElementById("commentlist")
-            chatlist.appendChild(newli)
-        }
-
-        nexttoken = json["nextPageToken"]
+        // li要素変更
+        chatlist = document.getElementById("comment_" + (9-i))
+        chatlist.textContent = username + "：" + text
     }
 }
 
@@ -51,6 +49,9 @@ function callback(json){
 function getchatapi(){
     apikey = document.getElementById("apikey").value;
     youtubeurl = document.getElementById("youtubeurl").value;
+
+    // コメントDBリセット
+    resete_api()
 
     intervalId = setInterval(getChatLoop, 2000)
 }
@@ -64,5 +65,5 @@ function getchatstopapi(){
 
 // 無限にチャットを取得するループ
 function getChatLoop(){
-    use_getchatapi(apikey, youtubeurl, null)
+    use_getchatapi(apikey, youtubeurl, 0)
 }
