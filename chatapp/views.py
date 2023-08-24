@@ -2,7 +2,11 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core import serializers
 from chatapp.models import Comments, User
-import requests, json
+import requests
+
+
+#ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
+YT_API_KEY = "*****"
 
 
 #==========☆ トップページ用関数 ☆==========
@@ -20,15 +24,17 @@ def getchattest(request):
 # コメント取得をテストページで使えるようにAPI化したもの
 def api_getchat(request):
 
+    # トークンを取得
     nextPageToken = User.objects.get(pk=1).nextPageToken
+
+    # api_reset()を実行するとUser.objects.get(pk=1).nextPageToken = 0になるので、リセットされたらトークンもNoneにする
     if (nextPageToken == "0"):
         nextPageToken = None
 
     video_id = request.GET["youtubeurl"]
-    YT_API_KEY = request.GET["apikey"]
 
     # コメント取得、データベースに保存
-    get_chat(video_id, nextPageToken, YT_API_KEY)
+    get_chat(video_id, nextPageToken)
 
     # DBからコメント抽出
     newdata = list(choose_comment().values())
@@ -48,8 +54,8 @@ def api_reset(request):
 MAX_GET_CHAT = 10 #1度の取得最大数
 
 # チャットを取得しデータベースに保存させる関数
-def get_chat(video_id, pageToken, YT_API_KEY):
-    chat_id  = get_chat_id(video_id, YT_API_KEY)
+def get_chat(video_id, pageToken):
+    chat_id  = get_chat_id(video_id)
     url    = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
     params = {'key': YT_API_KEY, 'liveChatId': chat_id, 'part': 'id,snippet,authorDetails', 'maxResults':MAX_GET_CHAT}
     if type(pageToken) == str:
@@ -64,7 +70,7 @@ def get_chat(video_id, pageToken, YT_API_KEY):
 
 
 # ChatのIDを取得する関数(チャットを取得する関数本体で使用)
-def get_chat_id(video_id, YT_API_KEY):
+def get_chat_id(video_id):
 
     url    = 'https://www.googleapis.com/youtube/v3/videos'
     params = {'key': YT_API_KEY, 'id': video_id, 'part': 'liveStreamingDetails'}
@@ -96,15 +102,21 @@ def input_database(data):
         userobj = User.objects.get(pk=1)
         userobj.nextPageToken = data["nextPageToken"]
         userobj.save()
+    return
 
 # 取得したコメントをリセット。全部消す関数。
 def reset_database():
     for comment in Comments.objects.all():
         comment.delete()
 
-    userobj = User.objects.get(pk=1)
-    userobj.nextPageToken = "0"
-    userobj.save()
+    try:
+        userobj = User.objects.get(pk=1)
+        userobj.nextPageToken = "0"
+        userobj.save()
+    except:
+        userobj = User(nextPageToken = "0")
+        userobj.save()
+    return
 
     
 
