@@ -1,0 +1,103 @@
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="google" value="notranslate"/>
+    <link rel="stylesheet" href="../../static/chatapp/js/chat.css">
+    <title>ハンバーガーメニュー</title>
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <script type="text/javascript" src="{% static 'chatapp/js/getchattest.js' %}"></script>
+
+  </head>
+
+
+<div>
+<input type="text" id="video-link" placeholder="YouTube Video Link">
+<button onclick="getVideoTitle()">Get Title</button>
+<h1 id="video-title">Title(リンクによってタイトルが表示する仕組み/未完成)</h1>
+
+<h2 class="black">Black List(GPTからの返答によって表示する仕組み/未完成)</h2>
+<ul class="black2">
+    <li  id="Blacklist_1"></li>
+    <li  id="Blacklist_2"></li>
+    <li  id="Blacklist_3"></li>
+    <li  id="Blacklist_4"></li>
+    <li  id="Blacklist_5"></li>
+    <li  id="Blacklist_6"></li>
+    <li  id="Blacklist_7"></li>
+</ul>
+
+
+<h2 class="comments">最新の投稿(順序のある箇条書き)</h2>
+<ol  class="comment2" id="commentlist">
+    <li id="comment_0"></li>
+    <li id="comment_1"></li>
+    <li id="comment_2"></li>
+    <li id="comment_3"></li>
+    <li id="comment_4"></li>
+    <li id="comment_5"></li>
+    <li id="comment_6"></li>
+    <li id="comment_7"></li>
+    <li id="comment_8"></li>
+    <li id="comment_9"></li>
+</ol>
+</div> 
+
+
+<nav class="main-menu">
+
+<div>
+    <a class="logo" href="">
+    </a> 
+</div> 
+<div class="settings"></div>
+<div class="scrollbar" id="style-1">
+      
+<ul>
+  
+<li>                                   
+<a href="../chatapp/index.html">
+<i class="fa fa-home fa-lg"></i>
+<span class="nav-text">Home</span>
+</a>
+</li>   
+   
+<li>                                 
+<a href="">
+<i class="fa fa-user fa-lg"></i>
+<span class="nav-text">Login</span>
+</a>
+</li>   
+
+    
+<li>                                 
+<a href="">
+<i class="fa fa-envelope-o fa-lg"></i>
+<span class="nav-text">Contact</span>
+</a>
+</li>   
+
+  
+  
+</ul>
+
+  
+<li>
+                                   
+<a href="">
+<i class="fa fa-question-circle fa-lg"></i>
+<span class="nav-text">setting</span>
+</a>
+</li>   
+    
+
+        </nav>
+        
+  
+
+  
+</body>
+</html>
