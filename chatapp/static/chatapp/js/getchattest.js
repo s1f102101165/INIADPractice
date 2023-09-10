@@ -1,69 +1,48 @@
-let intervalId
 
-
-
-// views.pyのAPI呼び出し
-function resete_api(){
-    apiurl = "/api/resetapi/"
-    
-
+// タイマーIDを保存する変数の定義
+let intervalId;
+// views.pyのAPIを呼び出して、既存のコメントデータベースをリセットする関数
+function reset_api(){
+    apiurl = "/api/resetapi/";
     fetch(apiurl)
 }
-
-
-// views.pyのAPI呼び出し
+// views.pyのAPIを呼び出して、チャットデータを取得する関数
 function use_getchatapi(apikey, youtubeurl){
-    apiurl = "/api/getchatapi/?apikey=" + apikey +"&youtubeurl=" + youtubeurl
-
+    apiurl = "/api/getchatapi/?apikey=" + apikey + "&youtubeurl=" + youtubeurl;
     fetch(apiurl)
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok'); 
+        }
+        return response.json();
+    })
     .then(callback)
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error.message);
+    });
 }
-
-
-
-
-// use_getchatapiでJSONが取得できたら実行
+// use_getchatapi関数がJSONを正常に取得した場合に呼び出されるコールバック関数
 function callback(json){
-    console.log(json)
-
-
-    // 取得できたコメント数取得
-    n = json.length
-
-    
-    // コメントを表示していく
+    console.log(json);
+    n = json.length;
     for(let i=0; i< n; i++){
-        // JSONから必要なもの抽出
-        username = json[i]["name"]
-        text = json[i]["body"]
-        
-        // li要素変更
-        chatlist = document.getElementById("comment_" + (9-i))
-        chatlist.textContent = username + "：" + text
+        clustered_comment = json[i];
+        chatlist = document.getElementById("comment_" + (9-i));
+        chatlist.textContent = clustered_comment;
     }
 }
-
-
-// ボタンが押されたら無限ループ着火
+// ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
 function getchatapi(){
-    apikey = document.getElementById("apikey").value;
-    youtubeurl = document.getElementById("youtubeurl").value;
-
-    // コメントDBリセット
-    resete_api()
-
-    intervalId = setInterval(getChatLoop, 2000)
+    let apikey = document.getElementById("apikey").value;
+    let youtubeurl = document.getElementById("youtubeurl").value;
+    reset_api()
+    intervalId = setInterval(() => getChatLoop(apikey, youtubeurl), 2000);
 }
-
-// ボタンが押されたら無限ループストップ
+// ボタンがクリックされたときに呼び出され、チャットの取得を停止する関数
 function getchatstopapi(){
     clearInterval(intervalId)
 }
-
-
-
-// 無限にチャットを取得するループ
-function getChatLoop(){
-    use_getchatapi(apikey, youtubeurl, 0)
+// 一定間隔でチャットを取得する関数
+function getChatLoop(apikey, youtubeurl){
+    use_getchatapi(apikey, youtubeurl);
 }
