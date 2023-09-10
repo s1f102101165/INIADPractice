@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 import json
 import numpy as np
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
+YT_API_KEY = ""
 # Word2Vecモデルを読み込む
 word2vec_model_path = 'youtube_comments_model.model'
 # 単語数の上限を設定
@@ -71,7 +71,7 @@ def cluster_data(data, word2vec_model_path, n_clusters):
         vectors = vectors.reshape(-1, 1)
     
     # KMeansクラスタリングモデルを初期化
-    kmeans_model = KMeans(n_clusters=n_clusters, n_init=10, verbose=1, random_state=42)
+    kmeans_model = KMeans(n_clusters=min(n_clusters, len(vectors)), n_init=10, verbose=1, random_state=42)
     # ベクトルに対してクラスタリングを実行
     kmeans_model.fit(vectors)
     
@@ -100,7 +100,9 @@ def api_getchat(request):
     # get_chat()関数を呼び出して、コメントデータを取得
     # ここでAPIキーを渡すように変更
     clustered_comments = get_chat(video_id, nextPageToken, api_key)
-    return JsonResponse(clustered_comments, safe=False)
+    # DBからコメント抽出
+    newdata = list(choose_comment().values())
+    return JsonResponse(newdata, json_dumps_params={'ensure_ascii': False}, safe=False)
 # データベースリセット用API
 def api_reset(request):
     reset_database()
@@ -132,9 +134,13 @@ def get_chat(video_id, pageToken, api_key):
     # 抽出したコメントをクラスタリング
     clustered_comments = cluster_data(comments, word2vec_model_path, n_clusters)
     
+    # nextPageTokenを設定
+    userobj = User.objects.get(pk=1)
+    userobj.nextPageToken = response_data["nextPageToken"]
+    userobj.save()
     # クラスタリング結果をデータベースに保存
     input_database(clustered_comments)
-
+    return
 def view_comments(request):
     # データベースからコメントを取得
     comments = Comments.objects.all().order_by("-posted_at")[:50]
@@ -157,9 +163,19 @@ def get_chat_id(video_id):
     else:
         chat_id = None
     return chat_id
-
-# 取得したコメントをデータベースに格納する関数
+# をデータベースに格納する関数
 def input_database(data):
+        
+    for i in range(len(data)):
+        new_body = data[i][i]
+        new_posted_at = "2023-08-17T07:22:48.541037+00:00"
+        comment = Comments(body = new_body, posted_at = new_posted_at)
+        comment.save()
+    return
+
+
+# 【今は使っていないですが後で使うかもしれないので一応残しておきます】旧ver 取得したコメントをデータベースに格納する関数
+def input_old_database(data):
     if ("pageInfo" in data):
         chat_num = data['pageInfo']['resultsPerPage']
         
@@ -187,7 +203,6 @@ def reset_database():
         userobj = User(nextPageToken = "0")
         userobj.save()
     return
-
 #==========☆　コメントデータベースからコメントを抜粋する関数 ☆==========
 def choose_comment():
     return Comments.objects.all().order_by("-posted_at")[:50]
