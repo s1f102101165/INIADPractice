@@ -16,7 +16,7 @@ def get_comments(youtube_video_id, api_key, max_results=100):
     return comments
 # 例の呼び出し方法
 api_key = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
-video_ids = ["ZY4WCa06Big", "VZMkIPQBsOg", "mnFW_UacNsA", "yt3BOIXLdyg", "35uE9gESYVc", "jr65N2cRQmQ", "KMm40IETZzU"]  # ここに動画IDを追加
+video_ids = ["ZY4WCa06Big", "VZMkIPQBsOg", "mnFW_UacNsA", "yt3BOIXLdyg", "35uE9gESYVc", "jr65N2cRQmQ", "KMm40IETZzU", "Ya8aKNX5vOs", "WVdABLEvjiQ", "ghCHZfPVUfk", "0urlpBsq6to", "hJ1H5bcvHtE", "hFPZXfI3S0U", "q37_nOHbBEo", "DTFSEAl38ls", "GtIeq5n0sX0", "Hk2o-nCwdFQ", "QRFy2MNtqPQ", "MmG-vXNDeA8", "BeZMaLYqh5Q"]  # ここに動画IDを追加
 all_comments = []
 for video_id in video_ids:
     comments = get_comments(video_id, api_key)
