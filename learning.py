@@ -13,11 +13,11 @@ df = df.reset_index(drop=True)
 df = df.dropna(subset=['comment'])
 #print(df.head())
 
-df['comment'] = df['comment'].str.replace('<br>', '', regex=True)
 #絵文字を取り除く
-df['comment'] = df['comment'].str.replace(r'[\U00010000-\U0010ffff]', '', regex=True)
 #英語を取り除く
-df['comment'] = df['comment'].str.replace(r'[a-zA-Z]', '', regex=True)
+df['comment'] = df['comment'].str.replace('<br>', '', regex=True)\
+                             .str.replace(r'[\U00010000-\U0010ffff]', '', regex=True)\
+                             .str.replace(r'[a-zA-Z]', '', regex=True)
 
 ###前処理終了###
 
@@ -36,6 +36,7 @@ def get_stop_words():
                                'いう', 'れ', 'かつ', 'か', 'ない', 'です']
     return stop_words
 
+stop_words = get_stop_words()
 
 def parse_comment(comment, tagger=None, stop_words=None):
     try:
@@ -59,8 +60,9 @@ def parse_comment(comment, tagger=None, stop_words=None):
 tagger = MeCab.Tagger("-Owakati")
 
 # 各コメントを分かち書きしてリストに保存
-preprocessed_comments = [parse_comment(comment, tagger=tagger, stop_words=get_stop_words()).split() for comment in df['comment']]
+wakati_list = [parse_comment(comment, tagger=tagger, stop_words=stop_words).split() for comment in df['comment']]
+df['wakati'] = [' '.join(words) for words in wakati_list]
 
 # コメントのリストを入力として、モデルを学習
-model = Word2Vec(preprocessed_comments, vector_size=100, window=5, min_count=1, workers=4)
+model = Word2Vec(wakati_list, vector_size=100, window=5, min_count=1, workers=4)
 model.save("youtube_comments_model.model")
