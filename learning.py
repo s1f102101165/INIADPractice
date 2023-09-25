@@ -1,49 +1,66 @@
-
-from googleapiclient.discovery import build
-import re
-from janome.tokenizer import Tokenizer
+import pandas as pd
 from gensim.models import Word2Vec
-def get_comments(youtube_video_id, api_key, max_results=100):
-    youtube = build('youtube', 'v3', developerKey=api_key)
-    request = youtube.commentThreads().list(
-        part="snippet",
-        videoId=youtube_video_id,
-        maxResults=max_results,
-        order="time"
-    )
-    response = request.execute()
-    comments = [item['snippet']['topLevelComment']['snippet']['textDisplay'] for item in response['items']]
-    return comments
-# 例の呼び出し方法
-api_key = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
-video_ids = ["ZY4WCa06Big", "VZMkIPQBsOg", "mnFW_UacNsA", "yt3BOIXLdyg", "35uE9gESYVc", "jr65N2cRQmQ", "KMm40IETZzU"]  # ここに動画IDを追加
-all_comments = []
-for video_id in video_ids:
-    comments = get_comments(video_id, api_key)
-    all_comments.extend(comments)
-comments = get_comments(video_id, api_key)
-print(comments)
-t = Tokenizer()
-def preprocess_text(text):
-    # 正規化
-    text = text.lower()
-    text = re.sub(r'\d+', '0', text)  # 数字を0に置き換え
-    # 不要な文字の削除
-    text = re.sub(r'https?://[\w/:%#\$&\?\(\)~\.=\+\-]+', '', text)  # URL削除
-    text = re.sub(r'[\n\r\t]', ' ', text)  # 改行やタブをスペースに変換
-    # 形態素解析
-    tokens = t.tokenize(text, wakati=True)
-    
-    # ストップワードの除去
-    stopwords = ["と", "も", "は", "の", "に", "を"]
-    tokens = [word for word in tokens if word not in stopwords]
-    
-    return tokens
-# 使用例
-text = "YouTubeのURLはhttps://www.youtube.com/ です。"
-preprocessed_text = preprocess_text(text)
-print(preprocessed_text)  # "youtube url です 。"
-preprocessed_comments = [preprocess_text(comment) for comment in all_comments]
+import requests
+import MeCab
+
+df = pd.read_csv('youtube_comments.csv',header = None)
+
+###前処理開始###
+
+df.columns = ["comment"]
+df = df.drop(0)
+df = df.reset_index(drop=True)
+df = df.dropna(subset=['comment'])
+#print(df.head())
+
+df['comment'] = df['comment'].str.replace('<br>', '', regex=True)
+#絵文字を取り除く
+df['comment'] = df['comment'].str.replace(r'[\U00010000-\U0010ffff]', '', regex=True)
+#英語を取り除く
+df['comment'] = df['comment'].str.replace(r'[a-zA-Z]', '', regex=True)
+
+###前処理終了###
+
+def get_stop_words():
+    url = "http://svn.sourceforge.jp/svnroot/slothlib/CSharp/Version1/SlothLib/NLP/Filter/StopWord/word/Japanese.txt"
+    r = requests.get(url)
+    tmp = r.text.split('\r\n')
+    stop_words = []
+    for i in range(len(tmp)):
+        if len(tmp[i]) < 1:
+            continue
+        stop_words.append(tmp[i])
+    stop_words = stop_words + ['が', 'で', 'は', 'の', 'も', 'を', 'て', 'に', 'だ', 
+                               'と', 'た', 'や', 'ます', 'など', 'あり', 'する', 'ある', 
+                               'な', 'き', 'いる', 'から', 'そう', 'し', 'おり', 'ば', 'なら',
+                               'いう', 'れ', 'かつ', 'か', 'ない', 'です']
+    return stop_words
+
+
+def parse_comment(comment, tagger=None, stop_words=None):
+    try:
+        lines = tagger.parse(comment).split('\n')
+    except TypeError:
+        print(comment)
+    except AttributeError:
+        print(comment)
+        
+    word_list = []
+    for line in lines:
+        if line == 'EOS':
+            break
+        if line in stop_words:
+            continue
+        word = line.split('\t')[0]
+        word_list.append(word)
+    return ' '.join(word_list)
+
+
+tagger = MeCab.Tagger("-Owakati")
+
+# 各コメントを分かち書きしてリストに保存
+preprocessed_comments = [parse_comment(comment, tagger=tagger, stop_words=get_stop_words()).split() for comment in df['comment']]
+
 # コメントのリストを入力として、モデルを学習
 model = Word2Vec(preprocessed_comments, vector_size=100, window=5, min_count=1, workers=4)
 model.save("youtube_comments_model.model")
