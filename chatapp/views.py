@@ -90,8 +90,6 @@ def api_reset(request):
 MAX_GET_CHAT = 100 #1度の取得最大数
 # YouTubeのチャットを取得する関数
 def get_chat(video_id, pageToken, api_key):
-    # モデルのロード
-    fasttext_model = fasttext.load_model(model_path)
     # video_idからchat_idを取得する関数（以前の部分で提供されていたと思われる）
     chat_id = get_chat_id(video_id)
     # YouTube APIのエンドポイント
