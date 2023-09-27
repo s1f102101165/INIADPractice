@@ -21,7 +21,6 @@ YT_API_KEY = "AIzaSyCQ1K-468DKP_E6cTd6YjfxQCvMihE4-zM"
             with open(prefix + suffix, 'rb') as fd:
                 wfd.write(fd.read())
 
-# 使い方
 prefix = "crawl-300d-2M-subword_part_"
 suffixes = ["aa", "ab", "ac", "ad"]
 output_filename = "combined_model.bin"
