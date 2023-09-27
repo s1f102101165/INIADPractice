@@ -34,7 +34,7 @@ fasttext_model = fasttext.load_model(output_filename)"""
 model_path = "crawl-300d-2M-subword_part_aa"
 fasttext_model = fasttext.load_model(model_path)
 
-n_clusters = 5
+n_clusters = 3
 
 #==========☆ トップページ用関数 ☆==========
 def index(request):
@@ -56,7 +56,11 @@ def cluster_data(comments, fasttext_model):
             avg_vector = [0] * vector_dim
         vectorized_comments.append(avg_vector)
     
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(vectorized_comments)
+    if vectorized_comments:  # vectorized_commentsが空でないことを確認
+        kmeans = KMeans(n_clusters=min(n_clusters, len(vectors)), n_init=10, verbose=1, random_state=42).fit(vectorized_comments)
+    else:
+        print("No comments were vectorized.")
+
     labels = kmeans.labels_
 
     clustered_comments = {}
@@ -64,7 +68,6 @@ def cluster_data(comments, fasttext_model):
         if label not in clustered_comments:
             clustered_comments[label] = []
         clustered_comments[label].append(comments[i])
-
     return clustered_comments
 
 
@@ -155,6 +158,7 @@ def get_chat_id(video_id):
     else:
         chat_id = None
     return chat_id
+
 # をデータベースに格納する関数
 def input_database(data):
         
@@ -164,7 +168,6 @@ def input_database(data):
         comment = Comments(body = new_body, posted_at = new_posted_at)
         comment.save()
     return
-
 
 # 【今は使っていないですが後で使うかもしれないので一応残しておきます】旧ver 取得したコメントをデータベースに格納する関数
 def input_old_database(data):
