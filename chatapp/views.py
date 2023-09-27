@@ -7,17 +7,30 @@ from collections import defaultdict
 import json
 from sklearn.cluster import KMeans
 import numpy as np
-from gensim.models import Word2Vec
-
-#learning.pyをimport
-from learning import *
+from gensim.models import FastText
+import fasttext
+import os
 
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
 YT_API_KEY = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
-# Word2Vecモデルを読み込む
-word2vec_model_path = 'youtube_comments_model.model'
-# 単語数の上限を設定
-max_vocab = 10000
+# モデルを読み込む
+
+def combine_files(prefix, suffixes, output_filename):
+    with open(output_filename, 'wb') as wfd:
+        for suffix in suffixes:
+            with open(prefix + suffix, 'rb') as fd:
+                wfd.write(fd.read())
+
+# 使い方
+prefix = "crawl-300d-2M-subword_part_"
+suffixes = ["aa", "ab", "ac", "ad"]
+output_filename = "combined_model.bin"
+
+combine_files(prefix, suffixes, output_filename)
+
+
+fasttext_model = fasttext.load_model(output_filename)
+
 
 n_clusters = 5
 
@@ -29,40 +42,29 @@ def index(request):
 def getchattest(request):
     return render(request, "chatapp/getchattest.html")
 
-def vectorize_comments(comments, model):
+def cluster_data(comments, fasttext_model):
     vectorized_comments = []
-    
+    vector_dim = fasttext_model.get_dimension()  # ベクトルの次元数を取得
     for comment in comments:
-        words = comment.split()
-        vectors = [model.wv[word] for word in words if word in model.wv]
-        
+        words = comment.split()  # 簡単にスペースで単語を分割
+        vectors = [fasttext_model.get_word_vector(word) for word in words]
         if vectors:
-            vectorized_comments.append(np.mean(vectors, axis=0))
+            avg_vector = sum(vectors) / len(vectors)
         else:
-            vectorized_comments.append(np.zeros(model.vector_size))
+            avg_vector = [0] * vector_dim
+        vectorized_comments.append(avg_vector)
     
-    return vectorized_comments
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(vectorized_comments)
+    labels = kmeans.labels_
 
-def cluster_data(data, word2vec_model_path, n_clusters=n_clusters):
-    # Word2Vecモデルのロード
-    model = Word2Vec.load(word2vec_model_path)
-    
-    # 各コメントをベクトルに変換
-    X = vectorize_comments(data, model)
+    clustered_comments = {}
+    for i, label in enumerate(labels):
+        if label not in clustered_comments:
+            clustered_comments[label] = []
+        clustered_comments[label].append(comments[i])
 
-    # 実際のクラスタリング
-    km_model = KMeans(n_clusters=n_clusters)
-    if len(X) == 0:
-        return []
-    km_model.fit(X)
-    labels = km_model.labels_
+    return clustered_comments
 
-    # クラスタごとにコメントを格納するリスト
-    clustered_comments_list = [[] for _ in range(n_clusters)]
-    for idx, label in enumerate(labels):
-        clustered_comments_list[label].append(data[idx])
-
-    return clustered_comments_list
 
 # コメント取得をテストページで使えるようにAPI化したもの
 def api_getchat(request):
@@ -88,6 +90,8 @@ def api_reset(request):
 MAX_GET_CHAT = 100 #1度の取得最大数
 # YouTubeのチャットを取得する関数
 def get_chat(video_id, pageToken, api_key):
+    # モデルのロード
+    fasttext_model = fasttext.load_model(model_path)
     # video_idからchat_idを取得する関数（以前の部分で提供されていたと思われる）
     chat_id = get_chat_id(video_id)
     # YouTube APIのエンドポイント
@@ -113,15 +117,14 @@ def get_chat(video_id, pageToken, api_key):
         return []  # ここでは空のリストを返すことを例としています
 
     # エラーがない場合、通常の処理を続行
-    comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
-    print("なかみ",response_data)
-
     # 取得したデータからコメントの内容のみをリストとして抽出
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
-    
+    print("なかみ",comments)
+
     # 抽出したコメントをクラスタリング
-    clustered_comments = cluster_data(comments, word2vec_model_path, n_clusters)
-    
+    clustered_comments = cluster_data(comments, fasttext_model)  
+    print("クラスタリング:",clustered_comments)
+
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
     userobj.nextPageToken = response_data["nextPageToken"]
