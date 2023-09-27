@@ -12,7 +12,7 @@ import fasttext
 import os
 
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = "AIzaSyCQ1K-468DKP_E6cTd6YjfxQCvMihE4-zM"
+YT_API_KEY = ""
 # モデルを読み込む
 
 """def combine_files(prefix, suffixes, output_filename):
