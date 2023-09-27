@@ -12,10 +12,10 @@ import fasttext
 import os
 
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
+YT_API_KEY = "AIzaSyCQ1K-468DKP_E6cTd6YjfxQCvMihE4-zM"
 # モデルを読み込む
 
-def combine_files(prefix, suffixes, output_filename):
+"""def combine_files(prefix, suffixes, output_filename):
     with open(output_filename, 'wb') as wfd:
         for suffix in suffixes:
             with open(prefix + suffix, 'rb') as fd:
@@ -29,8 +29,10 @@ output_filename = "combined_model.bin"
 combine_files(prefix, suffixes, output_filename)
 
 
-fasttext_model = fasttext.load_model(output_filename)
+fasttext_model = fasttext.load_model(output_filename)"""
 
+model_path = "crawl-300d-2M-subword_part_aa"
+fasttext_model = fasttext.load_model(model_path)
 
 n_clusters = 5
 
