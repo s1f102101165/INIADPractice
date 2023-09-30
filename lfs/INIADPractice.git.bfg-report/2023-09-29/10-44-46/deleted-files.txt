@@ -1,0 +1,4 @@
+a1bc81949ed1341ed5dc6f3fe2cdacb099893aa1 135 crawl-300d-2M-subword_part_aa
+e565b8d380c2c68dce06d446757ad9f6c8dfadc7 135 crawl-300d-2M-subword_part_ab
+c312f01e7e97743da4438f7e9f6f3bc336d4fb44 135 crawl-300d-2M-subword_part_ac
+b40e51e99d1a23047f81230a756b1fa1ea830687 134 crawl-300d-2M-subword_part_ad

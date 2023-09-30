@@ -1,0 +1,5 @@
+# pack-refs with: peeled fully-peeled sorted 
+8d24f68d6f7d9facebffeafe876b2a2cc7cf43c9 refs/heads/Goto
+3f30a60840aa5b575eb8e3d87ebe691d66b07999 refs/heads/dev_yamada
+5b6bd81645e60757776c32709e5152d43dafc40d refs/heads/dev_yamagishi
+8cf963daad0f7bcfb7e494055e003fafc79ebafa refs/heads/main
