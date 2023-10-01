@@ -10,6 +10,7 @@ import numpy as np
 from gensim.models import FastText
 import fasttext
 import os
+import MeCab
 
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
 YT_API_KEY = "AIzaSyCbFs1IMNqYp_Y-kTA442GODM9g5DOmrF4"
@@ -46,8 +47,10 @@ def getchattest(request):
 def cluster_data(comments, fasttext_model):
     vectorized_comments = []
     vector_dim = fasttext_model.get_dimension()  # ベクトルの次元数を取得
+    tagger = MeCab.Tagger("-Owakati") # 文字列を単語に区切るルールを指定
     for comment in comments:
-        words = comment.split()  # 簡単にスペースで単語を分割
+        space_sentence = tagger.parse(comment) # コメントの文字列を単語ごとにスペースで区切る
+        words = space_sentence.split()  # 簡単にスペースで単語を分割
         vectors = [fasttext_model.get_word_vector(word) for word in words]
         if vectors:
             avg_vector = sum(vectors) / len(vectors)
@@ -61,6 +64,7 @@ def cluster_data(comments, fasttext_model):
         print("No comments were vectorized.")
 
     labels = kmeans.labels_
+    print("[", labels, "]")
 
     clustered_comments = {}
     for i, label in enumerate(labels):
