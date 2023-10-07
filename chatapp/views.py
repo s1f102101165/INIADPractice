@@ -112,7 +112,7 @@ def get_chat(video_id, pageToken, api_key):
     # クラスタリング結果をデータベースに保存
     input_database(clustered_comments)
     return
-    return
+
 def view_comments(request):
     # データベースからコメントを取得
     comments = Comments.objects.all().order_by("-posted_at")[:50]
