@@ -154,3 +154,4 @@ dmypy.json
 cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+crawl-300d-2M-subword_part_aa
