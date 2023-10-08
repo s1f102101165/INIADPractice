@@ -11,31 +11,12 @@ from gensim.models import FastText
 import fasttext
 import os
 import MeCab
-
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = "AIzaSyCbFs1IMNqYp_Y-kTA442GODM9g5DOmrF4"
+YT_API_KEY = ""
 # モデルを読み込む
-
-"""def combine_files(prefix, suffixes, output_filename):
-    with open(output_filename, 'wb') as wfd:
-        for suffix in suffixes:
-            with open(prefix + suffix, 'rb') as fd:
-                wfd.write(fd.read())
-
-prefix = "crawl-300d-2M-subword_part_"
-suffixes = ["aa", "ab", "ac", "ad"]
-output_filename = "combined_model.bin"
-
-combine_files(prefix, suffixes, output_filename)
-
-
-fasttext_model = fasttext.load_model(output_filename)"""
-
 model_path = "crawl-300d-2M-subword_part_aa"
 fasttext_model = fasttext.load_model(model_path)
-
 n_clusters = 3
-
 #==========☆ トップページ用関数 ☆==========
 def index(request):
     return render(request, "chatapp/index.html")
@@ -43,7 +24,6 @@ def index(request):
 # 動作確認用に一時的に作ったページです。
 def getchattest(request):
     return render(request, "chatapp/getchattest.html")
-
 def cluster_data(comments, fasttext_model):
     vectorized_comments = []
     vector_dim = fasttext_model.get_dimension()  # ベクトルの次元数を取得
@@ -62,18 +42,14 @@ def cluster_data(comments, fasttext_model):
         kmeans = KMeans(n_clusters=min(n_clusters, len(vectors)), n_init=10, verbose=1, random_state=42).fit(vectorized_comments)
     else:
         print("No comments were vectorized.")
-
     labels = kmeans.labels_
     print("[", labels, "]")
-
     clustered_comments = {}
     for i, label in enumerate(labels):
         if label not in clustered_comments:
             clustered_comments[label] = []
         clustered_comments[label].append(comments[i])
     return clustered_comments
-
-
 # コメント取得をテストページで使えるようにAPI化したもの
 def api_getchat(request):
     # トークンを取得
@@ -115,22 +91,18 @@ def get_chat(video_id, pageToken, api_key):
         params['pageToken'] = pageToken
     # YouTube APIを呼び出し、結果をJSONとして取得
     response_data = requests.get(url, params=params).json()
-
     # APIの応答に 'error' キーが存在する場合、エラーハンドリングを行う
     if 'error' in response_data:
         print("Error from YouTube API:", response_data['error']['message'])
         # 必要に応じて、その他のエラーハンドリング処理を追加
         return []  # ここでは空のリストを返すことを例としています
-
     # エラーがない場合、通常の処理を続行
     # 取得したデータからコメントの内容のみをリストとして抽出
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
     print("なかみ",comments)
-
     # 抽出したコメントをクラスタリング
     clustered_comments = cluster_data(comments, fasttext_model)  
     print("クラスタリング:",clustered_comments)
-
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
     userobj.nextPageToken = response_data["nextPageToken"]
@@ -138,9 +110,6 @@ def get_chat(video_id, pageToken, api_key):
     # クラスタリング結果をデータベースに保存
     input_database(clustered_comments)
     return
-
-    return
-
 def view_comments(request):
     # データベースからコメントを取得
     comments = Comments.objects.all().order_by("-posted_at")[:50]
@@ -163,7 +132,6 @@ def get_chat_id(video_id):
     else:
         chat_id = None
     return chat_id
-
 # をデータベースに格納する関数
 def input_database(data):
         
@@ -173,7 +141,6 @@ def input_database(data):
         comment = Comments(body = new_body, posted_at = new_posted_at)
         comment.save()
     return
-
 # 【今は使っていないですが後で使うかもしれないので一応残しておきます】旧ver 取得したコメントをデータベースに格納する関数
 def input_old_database(data):
     if ("pageInfo" in data):
