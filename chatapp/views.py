@@ -12,7 +12,7 @@ import fasttext
 import os
 import MeCab
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = ""
+YT_API_KEY = "AIzaSyCbFs1IMNqYp_Y-kTA442GODM9g5DOmrF4"
 # モデルを読み込む
 model_path = "crawl-300d-2M-subword_part_aa"
 fasttext_model = fasttext.load_model(model_path)
@@ -20,6 +20,11 @@ n_clusters = 3
 #==========☆ トップページ用関数 ☆==========
 def index(request):
     return render(request, "chatapp/index.html")
+
+#==========☆ チャット取得本番ページ用関数 ☆==========
+def chat(request):
+    return render(request, "chatapp/chat.html")
+
 #==========☆　YouTubeコメント欄取得動作テストページ用関数 ☆==========
 # 動作確認用に一時的に作ったページです。
 def getchattest(request):
