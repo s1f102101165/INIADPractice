@@ -12,7 +12,7 @@ import fasttext
 import os
 import MeCab
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = ""
+YT_API_KEY = "AIzaSyCbFs1IMNqYp_Y-kTA442GODM9g5DOmrF4"
 # モデルを読み込む
 model_path = "crawl-300d-2M-subword_part_aa"
 fasttext_model = fasttext.load_model(model_path)
@@ -96,6 +96,11 @@ def api_getchat(request):
     result = get_chat(video_id, nextPageToken, api_key)
     # DBからコメント抽出
     newdata = list(choose_comment().values())
+
+    # エラーが出てうまく動いていないならコメントではなくエラーを返す
+    if ("errorcode" in result):
+        newdata = result
+
     return JsonResponse(newdata, json_dumps_params={'ensure_ascii': False}, safe=False)
 
 # データベースリセット用API
@@ -132,7 +137,7 @@ def get_chat(video_id, pageToken, api_key):
     if 'error' in response_data:
         print("Error from YouTube API:", response_data['error']['message'])
         # 必要に応じて、その他のエラーハンドリング処理を追加
-        return []  # ここでは空のリストを返すことを例としています
+        return {"errorcode":response_data['error']['message']}  # ここでは空のリストを返すことを例としています
     # エラーがない場合、通常の処理を続行
     # 取得したデータからコメントの内容のみをリストとして抽出
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
@@ -146,7 +151,7 @@ def get_chat(video_id, pageToken, api_key):
     userobj.save()
     # クラスタリング結果をデータベースに保存
     input_database(clustered_comments, response_data["items"])
-    return
+    return {}
 
 
 def view_comments(request):

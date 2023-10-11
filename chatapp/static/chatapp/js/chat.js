@@ -26,11 +26,20 @@ function use_getchatapi(youtubeurl){
 // use_getchatapi関数がJSONを正常に取得した場合に呼び出されるコールバック関数
 function callback(json){
     console.log(json);
-    n = json.length;
-    for(let i=0; i< n; i++){
-        clustered_comment = json[i]["body"];
-        chatlist = document.getElementById("comment_" + (i));
-        chatlist.textContent = clustered_comment;
+
+    if ("errorcode" in json){
+        // エラーがあった場合の処理
+        if (json["errorcode"] == "The request is missing a valid API key."){alert("[エラー]\nAPIキーが正しくないです！\nviews.pyを確認してください！")}
+        else if (json["errorcode"] == "No filter selected. Expected one of: liveChatId"){alert("[エラー]\nライブ配信のURLが正しくないです！\n（通常の動画や、ライブ配信のアーカイブなどでは動作しません）")}
+        else {alert("[エラー]\n何かしらのエラーによりコメントが取得できませんでした")}
+    }else{
+        // エラーなく正常に動作した場合の処理
+        n = json.length;
+        for(let i=0; i< n; i++){
+            clustered_comment = json[i]["body"];
+            chatlist = document.getElementById("comment_" + (i));
+            chatlist.textContent = clustered_comment;
+        }
     }
 }
 
