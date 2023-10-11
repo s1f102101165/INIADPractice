@@ -146,7 +146,7 @@ def get_chat(video_id, pageToken, api_key):
     userobj.nextPageToken = response_data["nextPageToken"]
     userobj.save()
     # クラスタリング結果をデータベースに保存
-    input_database(clustered_comments)
+    input_database(clustered_comments, response_data["items"])
     return
 
 
@@ -174,15 +174,16 @@ def get_chat_id(video_id):
         chat_id = liveStreamingDetails['activeLiveChatId']
     else:
         chat_id = None
+        print("[views.pyのget_chat_id関数からのお知らせ]\n何かしらの問題によりチャットidが取得できませんでした。\n（ライブ配信でない動画や、ライブ配信のアーカイブ動画のチャット欄は取得できません）")
     return chat_id
 
 
 # をデータベースに格納する関数
-def input_database(data):
-        
+def input_database(data, all_comments):
+
     for i in range(len(data)):
-        new_body = data[i][i]
-        new_posted_at = "2023-08-17T07:22:48.541037+00:00"
+        new_body = data[i][0]
+        new_posted_at = "2023-08-17T07:22:48.541037+00:00" #仮データ
         comment = Comments(body = new_body, posted_at = new_posted_at)
         comment.save()
     return
