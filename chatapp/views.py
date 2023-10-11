@@ -66,7 +66,6 @@ def api_getmovie(request):
     video_id = request.GET["youtubeurl"]
     api_key = YT_API_KEY
 
-        # YouTube APIのエンドポイント
     url = 'https://www.googleapis.com/youtube/v3/videos'
     api_key = YT_API_KEY
     # APIに渡すパラメータを設定
@@ -94,7 +93,7 @@ def api_getchat(request):
     api_key = YT_API_KEY
     # get_chat()関数を呼び出して、コメントデータを取得
     # ここでAPIキーを渡すように変更
-    clustered_comments = get_chat(video_id, nextPageToken, api_key)
+    result = get_chat(video_id, nextPageToken, api_key)
     # DBからコメント抽出
     newdata = list(choose_comment().values())
     return JsonResponse(newdata, json_dumps_params={'ensure_ascii': False}, safe=False)
@@ -165,16 +164,18 @@ def get_chat_id(video_id):
     url    = 'https://www.googleapis.com/youtube/v3/videos'
     params = {'key': YT_API_KEY, 'id': video_id, 'part': 'liveStreamingDetails'}
     data   = requests.get(url, params=params).json()
-    if not data['items']:
+    if 'items' not in data:
         print("No items found in data.")
         return None
     
-    liveStreamingDetails = data['items'][0]['liveStreamingDetails']
-    if 'activeLiveChatId' in liveStreamingDetails.keys():
+    try:
+        liveStreamingDetails = data['items'][0]['liveStreamingDetails']
         chat_id = liveStreamingDetails['activeLiveChatId']
-    else:
+    except :
         chat_id = None
-        print("[views.pyのget_chat_id関数からのお知らせ]\n何かしらの問題によりチャットidが取得できませんでした。\n（ライブ配信でない動画や、ライブ配信のアーカイブ動画のチャット欄は取得できません）")
+        print("[views.pyのget_chat_id関数からのお知らせ]\n何かしらの問題によりチャットidが取得できませんでした。\nAPIキーの間違いや、動画URLの間違いなどが考えられます\n（ライブ配信でない動画や、ライブ配信のアーカイブのチャット欄は取得できません。）\n")
+    
+
     return chat_id
 
 

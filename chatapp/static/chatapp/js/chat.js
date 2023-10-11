@@ -36,17 +36,24 @@ function callback(json){
 
 // ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
 function getchatapi(){
+    clearInterval(intervalId)
+    delete_comment()
 
     let youtubeurl = document.getElementById("youtubeurl").value;
-    var regex = "https://www.youtube.com/watch?v="; //正規表現生成
+    //var regex = "https://www.youtube.com/watch?v="; //正規表現生成
 
 
-    youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
     
-    // 動画のタイトル取得(取得出来たらcallback_settitle関数実行)
+    youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
+
+    
+    // 動画のタイトル取得(取得出来たらcallback_settitle関数実行して表示)
     fetch ("/api/getmovieapi/?youtubeurl=" + youtubeurl)
     .then(response => response.json())
     .then(callback_movie)
+    .catch(error =>{
+        console.log("[エラー]:何らかの理由でタイトル取得できてないです")
+    })
 
 
     reset_api()
@@ -58,6 +65,13 @@ function callback_movie(json){
     element = document.getElementById("video-title").textContent = json["items"][0]["snippet"]["title"]
 }
 
+
+function delete_comment(){
+    for(let i=0; i< 10; i++){
+        chatlist = document.getElementById("comment_" + (i));
+        chatlist.textContent = "";
+    }
+}
 
 
 // ボタンがクリックされたときに呼び出され、チャットの取得を停止する関数
