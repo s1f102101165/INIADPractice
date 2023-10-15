@@ -11,6 +11,7 @@ from gensim.models import FastText
 import fasttext
 import os
 import MeCab
+
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
 YT_API_KEY = "AIzaSyCbFs1IMNqYp_Y-kTA442GODM9g5DOmrF4"
 # モデルを読み込む
@@ -58,7 +59,7 @@ def cluster_data(comments, fasttext_model):
         if label not in clustered_comments:
             clustered_comments[label] = []
         clustered_comments[label].append(comments[i])
-    return clustered_comments
+    return clustered_comments, labels
 
 
 # 動画タイトル取得用関数
@@ -143,14 +144,18 @@ def get_chat(video_id, pageToken, api_key):
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
     print("なかみ",comments)
     # 抽出したコメントをクラスタリング
-    clustered_comments = cluster_data(comments, fasttext_model)  
+    clustered_comments, clustered_labels = cluster_data(comments, fasttext_model)  
     print("クラスタリング:",clustered_comments)
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
     userobj.nextPageToken = response_data["nextPageToken"]
     userobj.save()
+
+    # クラスタリング結果を元のコメントと
+
+
     # クラスタリング結果をデータベースに保存
-    input_database(clustered_comments, response_data["items"])
+    input_database(clustered_labels, response_data["items"])
     return {}
 
 
@@ -184,13 +189,24 @@ def get_chat_id(video_id):
     return chat_id
 
 
-# をデータベースに格納する関数
-def input_database(data, all_comments):
+# コメントをデータベースに格納する関数
+def input_database(labels, all_comments):
 
-    for i in range(len(data)):
-        new_body = data[i][0]
-        new_posted_at = "2023-08-17T07:22:48.541037+00:00" #仮データ
-        comment = Comments(body = new_body, posted_at = new_posted_at)
+    already_labels = [] #ラベル既出リスト
+
+    # 全部のコメントを取り出し、格納
+    for i in range(len(all_comments)):
+        new_body = all_comments[i]["snippet"]["displayMessage"]
+        new_posted_at = all_comments[i]["snippet"]["publishedAt"]
+        new_name = all_comments[i]["authorDetails"]["displayName"]
+        new_userid = all_comments[i]["authorDetails"]["channelId"]
+        new_cluster_label = labels[i]
+        new_cluster_display = not (new_cluster_label in already_labels) # 今回初めてのラベルなら表示ON
+
+        if (new_cluster_display):
+            already_labels.append(new_cluster_label)
+
+        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display)
         comment.save()
     return
 
@@ -212,4 +228,4 @@ def reset_database():
 
 #==========☆　コメントデータベースからコメントを抜粋する関数 ☆==========
 def choose_comment():
-    return Comments.objects.all().order_by("-posted_at")[:50]
+    return Comments.objects.all().filter(cluster_display=True).order_by("-posted_at")[:50] #表示ONなものだけ新着順で抽出。filterのカッコ内にカンマ区切りで条件付け加え可能。
