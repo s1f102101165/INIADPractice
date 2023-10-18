@@ -1,4 +1,4 @@
-
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -6,18 +6,19 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="google" value="notranslate"/>
-    <link rel="stylesheet" href="../../static/chatapp/js/chat.css">
-    <title>ハンバーガーメニュー</title>
+    <link rel="stylesheet" href="../../static/chatapp/css/chat.css">
+    <title>チャット</title>
     <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    <script type="text/javascript" src="{% static 'chatapp/js/getchattest.js' %}"></script>
+    <script type="text/javascript" src="{% static 'chatapp/js/chat.js' %}"></script>
 
   </head>
 
 
 <div>
-<input type="text" id="video-link" placeholder="YouTube Video Link">
-<button onclick="getVideoTitle()">Get Title</button>
-<h1 id="video-title">Title(リンクによってタイトルが表示する仕組み/未完成)</h1>
+<input type="text" id="youtubeurl" placeholder="YouTube Video Link">
+<button onclick="getchatapi()">Get</button>
+<button type="button" onclick="getchatstopapi()">Stop</button>
+<h1 id="video-title">Title</h1>
 
 <h2 class="black">Black List(GPTからの返答によって表示する仕組み/未完成)</h2>
 <ul class="black2">

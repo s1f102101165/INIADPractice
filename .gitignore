@@ -154,4 +154,13 @@ dmypy.json
 cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
 crawl-300d-2M-subword_part_aa
+
+# モデルファイルをコミット対象から除外
+crawl-300d-2M-subword_part_aa
+crawl-300d-2M-subword_part_ab
+crawl-300d-2M-subword_part_ac
+crawl-300d-2M-subword_part_ad
+crawl-300d-2M-subword.bin
+
