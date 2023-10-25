@@ -29,6 +29,8 @@ function callback(json){
 
     if ("errorcode" in json){
         // エラーがあった場合の処理
+        clearInterval(intervalId)
+        
         if (json["errorcode"] == "The request is missing a valid API key."){alert("[エラー]\nAPIキーが正しくないです！\nviews.pyを確認してください！")}
         else if (json["errorcode"] == "No filter selected. Expected one of: liveChatId"){alert("[エラー]\nライブ配信のURLが正しくないです！\n（通常の動画や、ライブ配信のアーカイブなどでは動作しません）")}
         else {alert("[エラー]\n何かしらのエラーによりコメントが取得できませんでした")}
