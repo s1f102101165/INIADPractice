@@ -1,6 +1,6 @@
 body
 {
-  margin:10px;
+  margin:0px;
   padding-left: 8%;
   padding-right: 5%;
   font-family:  "ヒラギノ角ゴ ProN W3", "Yu Gothic","Open Sans", arial;
@@ -30,6 +30,7 @@ h1{
     top: 13%;
     left: 8%;
     right: 49.5%;
+    
     }
 
 .comments{
