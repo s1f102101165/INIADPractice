@@ -10,63 +10,67 @@ body
 
 }
 
-
+LINK{
+  left: 8%;
+}
 
 h1{
   margin: 20px 20px 20px 20px;
     padding: 2% 8%;
-    font-weight:200;
+    font-size: calc(20px + 16 * (100vw - 500px) / 600);
     background-color : #595959 ;
     position: relative;
     text-align:  center; 
     }
 
 .black{
-  margin: 20px 20px 20px 20px;
+  margin: 20px 10px 20px 20px;
     padding: 2% 3%;
-    font-weight:180;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
     background-color : #404040 ;
     position: absolute;
     top: 13%;
     left: 8%;
-    right: 49.5%;
+    right: 50%;
     
     }
 
+.black2{
+  margin: 20px 10px 20px 20px;
+    padding: 2% 8%;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
+    background-color : #363636 ;
+    position: absolute;
+    top: 25%;
+    left: 8%;
+    right: 50%;
+    line-height: 200%;
+    }
+      
 .comments{
-  margin: 20px 20px 20px 20px;
+  margin: 20px 20px 20px 10px;
     padding: 2% 3%;
-    font-weight:180;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
     background-color : #404040 ;
     position: absolute;
     top: 13%;
-    left: 51.5%;
+    left: 51%;
     right: 5%;
     }
 
 .comment2{
-  margin: 20px 20px 20px 20px;
-    padding: 2% 3%;
-    font-weight:200;
+  margin: 20px 20px 20px 10px;
+    padding: 2% 8%;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
     background-color : #363636 ;
     position: absolute;
-    top: 23.5%;
-    left: 51.5%;
+    top: 25%;
+    left: 51%;
     right: 5%;
     line-height: 200%;
     }
 
-.black2{
-  margin: 20px 20px 20px 20px;
-    padding: 2% 3%;
-    font-weight:400;
-    background-color : #363636 ;
-    position: absolute;
-    top: 23.5%;
-    left: 8%;
-    right: 49.5%;
-    line-height: 200%;
-    }
+
 
 
 @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
