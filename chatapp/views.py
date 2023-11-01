@@ -11,8 +11,11 @@ from gensim.models import FastText
 import fasttext
 import os
 import MeCab
+import openai
 
-import MeCab
+openai.api_key = "chHJM8Hh_9xSdUvtIKDyWgT9x8BOubw8AMXdvSyUBBEG4YzQMKtUI0Xi6x8Gx1N8Rcoamjl9tNxxmgY79Jaxwwg"
+openai.api_base = "https://api.openai.iniad.org/api/v1"
+
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
 YT_API_KEY = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
 # モデルを読み込む
@@ -185,6 +188,35 @@ def get_chat_id(video_id):
     
 
     return chat_id
+
+# Moderation APIを実行する関数を定義する
+def run_moderation_api(video_id):
+    api_key = YT_API_KEY
+    url = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
+    chat_id = get_chat_id(video_id)
+    params = {
+        'key': api_key,
+        'liveChatId': chat_id,
+        'part': 'id,snippet,authorDetails',
+        'maxResults': MAX_GET_CHAT
+    }
+    response_data = requests.get(url, params=params).json()
+    #コメント
+    comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
+    #commentsのひとつずつ、特定のカテゴリの値を調べ
+    for i in len(comments):
+        response = openai.Moderation.create(
+            input = comments[i]
+        )
+        category_scores = response['results'][0]['category_scores']
+        violence_score = category_scores['violence']
+        if(violence_score > 1.6707554095773958e-05):
+            #閾値以上ならtrueラベルを付け、データベースに保存
+            #閾値未満ならfalseラベルを付け、データベースに保存
+    
+    #返り値なし？
+
+    return {}
 
 
 # コメントをデータベースに格納する関数
