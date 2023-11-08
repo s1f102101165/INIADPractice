@@ -49,6 +49,14 @@ function callback(json){
     }
 }
 
+// エンターキーを検知し、チャット取得関数起動
+window.document.onkeydown = function(event){
+    if( event.key === 'Enter' ){
+        getchatapi();
+    }
+};
+
+
 // ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
 function getchatapi(){
     if (!now_motion){
@@ -60,9 +68,6 @@ function getchatapi(){
         delete_comment()
 
         let youtubeurl = document.getElementById("youtubeurl").value;
-
-
-        
         youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
 
         
@@ -83,10 +88,8 @@ function getchatapi(){
 // スタートボタンの表示チェンジ
 function change_start_butoon(){
     if (now_motion){
-        // ボタン　半透明に
-        //document.getElementById("startbutton").style.opacity = "0.5";
+        // ボタン　押せなくする
         document.getElementById("startbutton").disabled = "disabled";
-        //document.getElementById("startbutton").style.pointer.events= "none";
     }else{
         // ボタン　通常に
         document.getElementById("startbutton").disabled = false;
