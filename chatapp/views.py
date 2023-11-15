@@ -11,6 +11,7 @@ from gensim.models import FastText
 import fasttext
 import os
 import MeCab
+import time
 
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
 YT_API_KEY = "AIzaSyCbFs1IMNqYp_Y-kTA442GODM9g5DOmrF4"
@@ -194,6 +195,9 @@ def get_chat_id(video_id):
 def input_database(labels, all_comments):
 
     already_labels = [] #登場したラベルを格納していくリスト
+    cluster_id_addnumber = (int(time.time()) % 1000) * 10000 #この値をクラスタリング結果に足すことで、複数回に渡ってクラスタリングをしてもラベルを被らせないようにするか検討中。簡易的なもので、20分くらいで1順します。
+
+
 
     # 全部のコメントを取り出し、格納
     for i in range(len(all_comments)):
@@ -201,7 +205,7 @@ def input_database(labels, all_comments):
         new_posted_at = datetime.datetime.strptime(all_comments[i]["snippet"]["publishedAt"], "%Y-%m-%dT%H:%M:%S.%f%z") + datetime.timedelta(hours=9) #日本時間に合わせるため、文字列をdatetime型に変換したのち+9時間
         new_name = all_comments[i]["authorDetails"]["displayName"]
         new_userid = all_comments[i]["authorDetails"]["channelId"]
-        new_cluster_label = labels[i]
+        new_cluster_label = labels[i] #+ cluster_id_addnumber
         new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
 
         # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
