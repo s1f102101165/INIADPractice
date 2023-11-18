@@ -17,7 +17,7 @@ openai.api_key = "chHJM8Hh_9xSdUvtIKDyWgT9x8BOubw8AMXdvSyUBBEG4YzQMKtUI0Xi6x8Gx1
 openai.api_base = "https://api.openai.iniad.org/api/v1"
 
 #ここにGoogle Cloud Platformで入手したYoutubeDataAPIをそのまま入力
-YT_API_KEY = "AIzaSyDpJkQseYjIeAA_9j2vUzY0qxK_c5ZvwoU"
+YT_API_KEY = "AIzaSyCMshRndIskgi-LUVTaApDHldVsvhv8aCY"
 # モデルを読み込む
 model_path = "crawl-300d-2M-subword_part_aa"
 fasttext_model = fasttext.load_model(model_path)
@@ -34,7 +34,7 @@ def chat(request):
     return render(request, "chatapp/chat.html")
 
 
-#==========☆　YouTubeコメント欄取得動作テストページ用関数 ☆==========
+#==========☆YouTubeコメント欄取得動作テストページ用関数 ☆==========
 # 動作確認用に一時的に作ったページです。
 def getchattest(request):
     return render(request, "chatapp/getchattest.html")
@@ -98,13 +98,17 @@ def api_getchat(request):
     api_key = YT_API_KEY
     # get_chat()関数を呼び出して、コメントデータを取得
     # ここでAPIキーを渡すように変更
-    result = get_chat(video_id, nextPageToken, api_key)
+    #result = run_moderation_api(video_id, nextPageToken, api_key)
+    result2 = get_chat(video_id, nextPageToken, api_key)
     # DBからコメント抽出
     newdata = list(choose_comment().values())
 
     # エラーが出てうまく動いていないならコメントではなくエラーを返す
-    if ("errorcode" in result):
-        newdata = result
+    """if ("errorcode" in result):
+        newdata = result"""
+    
+    if ("errorcode" in result2):
+        newdata = result2
 
     return JsonResponse(newdata, json_dumps_params={'ensure_ascii': False}, safe=False)
 
@@ -115,7 +119,7 @@ def api_reset(request):
     
 
 
-#==========☆　YouTubeコメント欄取得関数 ☆==========
+#==========☆YouTubeコメント欄取得関数 ☆==========
 MAX_GET_CHAT = 100 #1度の取得最大数
 # YouTubeのチャットを取得する関数
 def get_chat(video_id, pageToken, api_key):
@@ -156,6 +160,7 @@ def get_chat(video_id, pageToken, api_key):
     userobj.save()
 
     # クラスタリング結果をデータベースに保存
+    # 番号（ラベル）、コメント一覧
     input_database(clustered_labels, response_data["items"])
     return {}
 
@@ -190,8 +195,10 @@ def get_chat_id(video_id):
     return chat_id
 
 # Moderation APIを実行する関数を定義する
-def run_moderation_api(video_id):
-    api_key = YT_API_KEY
+def run_moderation_api(video_id, nextPageToken, api_key):
+    # APIキーの設定
+    api_key = YT_API_KEY  # この行を削除するか、引数として渡された api_key を使用する
+
     url = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
     chat_id = get_chat_id(video_id)
     params = {
@@ -201,22 +208,27 @@ def run_moderation_api(video_id):
         'maxResults': MAX_GET_CHAT
     }
     response_data = requests.get(url, params=params).json()
-    #コメント
-    comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
-    #commentsのひとつずつ、特定のカテゴリの値を調べ
-    for i in len(comments):
+    
+    # 閾値
+    threshold = 0.001
+
+    # コメントの処理
+    for item in response_data["items"]:
+        comment_text = item["snippet"]["displayMessage"]
         response = openai.Moderation.create(
-            input = comments[i]
+            input=comment_text
         )
         category_scores = response['results'][0]['category_scores']
-        violence_score = category_scores['violence']
-        if(violence_score > 1.6707554095773958e-05):
-            #閾値以上ならtrueラベルを付け、データベースに保存
-            #閾値未満ならfalseラベルを付け、データベースに保存
-    
-    #返り値なし？
+        violence_score = category_scores.get('hate', 0)  # 'hate'カテゴリが存在しない場合は0をデフォルトとする
 
-    return {}
+        if violence_score > threshold:
+            label = "true"
+            print(f"アンチコメント: {comment_text}, Violence Score: {violence_score}")
+        else:
+            label = "false"
+            print(f"アンチコメント以外: {comment_text}, Violence Score: {violence_score}")
+    # データベースに保存
+    input_database(label, item)
 
 
 # コメントをデータベースに格納する関数
@@ -232,12 +244,14 @@ def input_database(labels, all_comments):
         new_userid = all_comments[i]["authorDetails"]["channelId"]
         new_cluster_label = labels[i]
         new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
+        new_anti_label = labels[i]
+        new_anti = not (new_anti_label in already_labels)
 
         # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
         if (new_cluster_display):
             already_labels.append(new_cluster_label)
 
-        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display)
+        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_label = new_anti_label, anti = new_anti)
         comment.save()
     return
 
@@ -257,6 +271,6 @@ def reset_database():
     return
 
 
-#==========☆　コメントデータベースからコメントを抜粋する関数 ☆==========
+#==========☆コメントデータベースからコメントを抜粋する関数 ☆==========
 def choose_comment():
-    return Comments.objects.all().filter(cluster_display=True).order_by("-posted_at")[:50] #表示ONなものだけ新着順で抽出。filterのカッコ内にカンマ区切りで条件付け加え可能。
+    return Comments.objects.all().filter(anti=True).order_by("-posted_at")[:50] #表示ONなものだけ新着順で抽出。filterのカッコ内にカンマ区切りで条件付け加え可能。

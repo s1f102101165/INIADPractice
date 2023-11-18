@@ -26,7 +26,7 @@ function callback(json){
     console.log(json);
     n = json.length;
     for(let i=0; i< n; i++){
-        clustered_comment = json[i]["body"];
+        anti = json[i]["body"];
         chatlist = document.getElementById("comment_" + (i));
         chatlist.textContent = clustered_comment;
     }
