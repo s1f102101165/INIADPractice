@@ -1,4 +1,3 @@
-
 from django.shortcuts import render
 from django.http import JsonResponse
 from chatapp.models import Comments, User
@@ -98,8 +97,7 @@ def api_getchat(request):
     api_key = YT_API_KEY
     # get_chat()関数を呼び出して、コメントデータを取得
     # ここでAPIキーを渡すように変更
-    #result = run_moderation_api(video_id, nextPageToken, api_key)
-    result2 = get_chat(video_id, nextPageToken, api_key)
+    result = get_chat(video_id, nextPageToken, api_key)
     # DBからコメント抽出
     newdata = list(choose_comment().values())
 
@@ -107,8 +105,8 @@ def api_getchat(request):
     """if ("errorcode" in result):
         newdata = result"""
     
-    if ("errorcode" in result2):
-        newdata = result2
+    if ("errorcode" in result):
+        newdata = result
 
     return JsonResponse(newdata, json_dumps_params={'ensure_ascii': False}, safe=False)
 
@@ -153,7 +151,9 @@ def get_chat(video_id, pageToken, api_key):
     print("なかみ",comments)
     # 抽出したコメントをクラスタリング
     clustered_comments, clustered_labels = cluster_data(comments, fasttext_model)  
+    anti_comments, anti_labels = run_moderation_api(comments)
     print("クラスタリング:",clustered_comments)
+    print("アンチ:",anti_comments)
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
     userobj.nextPageToken = response_data["nextPageToken"]
@@ -162,6 +162,7 @@ def get_chat(video_id, pageToken, api_key):
     # クラスタリング結果をデータベースに保存
     # 番号（ラベル）、コメント一覧
     input_database(clustered_labels, response_data["items"])
+    input_database(anti_labels, response_data["items"])
     return {}
 
 
@@ -195,9 +196,10 @@ def get_chat_id(video_id):
     return chat_id
 
 # Moderation APIを実行する関数を定義する
-def run_moderation_api(video_id, nextPageToken, api_key):
-    # APIキーの設定
-    api_key = YT_API_KEY  # この行を削除するか、引数として渡された api_key を使用する
+def run_moderation_api(comments):
+    #コメント取得、保存の部分をなくす
+    """
+    api_key = YT_API_KEY  
 
     url = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
     chat_id = get_chat_id(video_id)
@@ -208,28 +210,26 @@ def run_moderation_api(video_id, nextPageToken, api_key):
         'maxResults': MAX_GET_CHAT
     }
     response_data = requests.get(url, params=params).json()
-    
+    """
+    label = []
     # 閾値
     threshold = 0.001
 
     # コメントの処理
-    for item in response_data["items"]:
-        comment_text = item["snippet"]["displayMessage"]
+    for item in comments:
         response = openai.Moderation.create(
-            input=comment_text
+            input=item
         )
         category_scores = response['results'][0]['category_scores']
         violence_score = category_scores.get('hate', 0)  # 'hate'カテゴリが存在しない場合は0をデフォルトとする
 
         if violence_score > threshold:
-            label = "true"
-            print(f"アンチコメント: {comment_text}, Violence Score: {violence_score}")
+            label.append("true")
+            print(f"アンチコメント: {item}, Violence Score: {violence_score}")
         else:
-            label = "false"
-            print(f"アンチコメント以外: {comment_text}, Violence Score: {violence_score}")
-    # データベースに保存
-    input_database(label, item)
-
+            label.append("false")
+            print(f"アンチコメント以外: {item}, Violence Score: {violence_score}")
+    return comments, label
 
 # コメントをデータベースに格納する関数
 def input_database(labels, all_comments):
