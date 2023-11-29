@@ -11,8 +11,4 @@ urlpatterns = [
     path('api/getchatapi/', views.api_getchat),
     path('api/resetapi/', views.api_reset),
     path('api/getmovieapi/', views.api_getmovie),
-
-
-    path('clusterResult', views.clusterResult, name='clusterResult'), 
-    path('clusterResultJSON', views.clusterResultJSON, name='clusterResultJSON')
 ]

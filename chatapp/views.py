@@ -37,11 +37,9 @@ def chat(request):
 def getchattest(request):
     return render(request, "chatapp/getchattest.html")
 def cluster_data(comments, fasttext_model):
-    cluster_result_show = {} #表示用
     vectorized_comments = []
     vector_dim = fasttext_model.get_dimension()  # ベクトルの次元数を取得
     tagger = MeCab.Tagger("-Owakati") # 文字列を単語に区切るルールを指定
-    comment_counter = 0
     for comment in comments:
         space_sentence = tagger.parse(comment) # コメントの文字列を単語ごとにスペースで区切る
         words = space_sentence.split()  # 簡単にスペースで単語を分割
@@ -50,7 +48,6 @@ def cluster_data(comments, fasttext_model):
             avg_vector = sum(vectors) / len(vectors)
         else:
             avg_vector = [0] * vector_dim
-        cluster_result_show[comment_counter] = ({"comment":words, "vectors":vectors})
         vectorized_comments.append(avg_vector)
     
     if vectorized_comments:  # vectorized_commentsが空でないことを確認
@@ -64,7 +61,7 @@ def cluster_data(comments, fasttext_model):
         if label not in clustered_comments:
             clustered_comments[label] = []
         clustered_comments[label].append(comments[i])
-    return clustered_comments, labels, cluster_result_show
+    return clustered_comments, labels
 
 
 # 動画タイトル取得用関数
@@ -149,7 +146,7 @@ def get_chat(video_id, pageToken, api_key):
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
     print("なかみ",comments)
     # 抽出したコメントをクラスタリング
-    clustered_comments, clustered_labels, cluster_data_show = cluster_data(comments, fasttext_model)  
+    clustered_comments, clustered_labels = cluster_data(comments, fasttext_model)  
     print("クラスタリング:",clustered_comments)
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
@@ -238,70 +235,3 @@ def reset_database():
 #==========☆　コメントデータベースからコメントを抜粋する関数 ☆==========
 def choose_comment():
     return Comments.objects.all().filter(cluster_display=True).order_by("-posted_at")[:50] #表示ONなものだけ新着順で抽出。filterのカッコ内にカンマ区切りで条件付け加え可能。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#==========☆ クラスタリング結果表示用 ☆==========
-def clusterResult(request):
-    return render(request, "chatapp/clusterResult.html")
-
-def clusterResultJSON(request):
-
-    video_id = request.GET["youtubeurl"]
-    # APIキーを取得
-    api_key = YT_API_KEY
-
-    pageToken = None
-
-
-    # video_idからchat_idを取得する関数（以前の部分で提供されていたと思われる）
-    chat_id = get_chat_id(video_id)
-    # YouTube APIのエンドポイント
-    url = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
-    api_key = YT_API_KEY
-    # APIに渡すパラメータを設定
-    params = {
-        'key': api_key,
-        'liveChatId': chat_id,
-        'part': 'id,snippet,authorDetails',
-        'maxResults': MAX_GET_CHAT
-    }
-
-
-    # YouTube APIを呼び出し、結果をJSONとして取得
-    response_data = requests.get(url, params=params).json()
-
-    # APIの応答に 'error' キーが存在する場合、エラーハンドリングを行う
-    if 'error' in response_data:
-        print("Error from YouTube API:", response_data['error']['message'])
-        # 必要に応じて、その他のエラーハンドリング処理を追加
-        return {"errorcode":response_data['error']['message']}  # ここでは空のリストを返すことを例としています
-    # エラーがない場合、通常の処理を続行
-    # 取得したデータからコメントの内容のみをリストとして抽出
-    comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
-    print("なかみ",comments)
-    # 抽出したコメントをクラスタリング
-    clustered_comments, clustered_labels, cluster_data_show = cluster_data(comments, fasttext_model)  
-
-    result = {}
-    print("クラスタリング:",clustered_comments)
-
-
-    return JsonResponse(cluster_data_show, json_dumps_params={'ensure_ascii': False}, safe=False)
-
