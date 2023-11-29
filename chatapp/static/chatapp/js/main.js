@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 let now_motion = false;
 
 
@@ -55,9 +45,21 @@ function callback(json){
             clustered_comment = json[i]["body"];
             chatlist = document.getElementById("comment_" + (i));
             chatlist.textContent = clustered_comment;
+
+            clustered_comment = json[i]["name"];
+            chatlist = document.getElementById("commentTitle_" + (i));
+            chatlist.textContent = clustered_comment;
         }
     }
 }
+
+// エンターキーを検知し、チャット取得関数起動
+window.document.onkeydown = function(event){
+    if( event.key === 'Enter' ){
+        getchatapi();
+    }
+};
+
 
 // ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
 function getchatapi(){
@@ -70,9 +72,6 @@ function getchatapi(){
         delete_comment()
 
         let youtubeurl = document.getElementById("youtubeurl").value;
-
-
-        
         youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
 
         
@@ -93,10 +92,8 @@ function getchatapi(){
 // スタートボタンの表示チェンジ
 function change_start_butoon(){
     if (now_motion){
-        // ボタン　半透明に
-        //document.getElementById("startbutton").style.opacity = "0.5";
+        // ボタン　押せなくする
         document.getElementById("startbutton").disabled = "disabled";
-        //document.getElementById("startbutton").style.pointer.events= "none";
     }else{
         // ボタン　通常に
         document.getElementById("startbutton").disabled = false;
@@ -115,8 +112,8 @@ function callback_movie(json){
 
 function delete_comment(){
     for(let i=0; i< 10; i++){
-        chatlist = document.getElementById("comment_" + (i));
-        chatlist.textContent = "";
+        //chatlist = document.getElementById("comment_" + (i).td);
+        //chatlist.textContent = "";
     }
 }
 
@@ -133,70 +130,6 @@ function getchatstopapi(){
 // 一定間隔でチャットを取得する関数
 function getChatLoop(youtubeurl){
     use_getchatapi(youtubeurl);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// views.pyのAPIを呼び出して、既存のコメントデータベースをリセットする関数
-function reset_api(){
-    apiurl = "/api/resetapi/";
-    fetch(apiurl)
-}
-// views.pyのAPIを呼び出して、チャットデータを取得する関数
-function use_getchatapi(apikey, youtubeurl){
-    apiurl = "/api/getchatapi/?apikey=" + apikey + "&youtubeurl=" + youtubeurl;
-    fetch(apiurl)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok'); 
-        }
-        return response.json();
-    })
-    .then(callback)
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error.message);
-    });
-}
-// use_getchatapi関数がJSONを正常に取得した場合に呼び出されるコールバック関数
-function callback(json){
-    console.log(json);
-    n = json.length;
-    for(let i=0; i< n; i++){
-        clustered_comment = json[i]["body"];
-        chatlist = document.getElementById("comment_" + (i));
-        chatlist.textContent = clustered_comment;
-    }
-}
-// ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
-function getchatapi(){
-    let apikey = document.getElementById("apikey").value;
-    let youtubeurl = document.getElementById("youtubeurl").value;
-    reset_api()
-    intervalId = setInterval(() => getChatLoop(apikey, youtubeurl), 10000);
-}
-// ボタンがクリックされたときに呼び出され、チャットの取得を停止する関数
-function getchatstopapi(){
-    clearInterval(intervalId)
-}
-// 一定間隔でチャットを取得する関数
-function getChatLoop(apikey, youtubeurl){
-    use_getchatapi(apikey, youtubeurl);
 }
 
 
