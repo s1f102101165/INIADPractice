@@ -3,83 +3,150 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="google" content="notranslate"/> <!-- 正しい属性はcontentです -->
-    <link rel="stylesheet" href="{% static 'chatapp/css/chat.css' %}"> <!-- CSSファイルのパスを修正 -->
+    <meta charset="UTF-8">
+    <title>Chat Guardian</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <link rel="stylesheet" href="{% static 'chatapp/css/style.css' %}"> <!-- CSSファイルのパスを修正 -->
     <title>チャット</title>
     <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-    <script type="text/javascript" src="{% static 'chatapp/js/chat.js' %}"></script>
-</head>
-<body>
-<div>
-    <div class="LINK">
-    <input type="text" id="youtubeurl" placeholder="YouTube Video Link">
-    <button onclick="getchatapi()" id="startbutton">Get</button>
-    <button type="button" onclick="getchatstopapi()" >Stop</button>
-    <h1 id="video-title">Title</h1>
-    </div>
-    <h2 class="black">Black List(GPTからの返答によって表示する仕組み/未完成)</h2>
-    <ul class="black2">
-        <li id="Blacklist_1"></li>
-        <li id="Blacklist_2"></li>
-        <li id="Blacklist_3"></li>
-        <li id="Blacklist_4"></li>
-        <li id="Blacklist_5"></li>
-        <li id="Blacklist_6"></li>
-        <li id="Blacklist_7"></li>
-    </ul>
 
-    <h2 class="comments">最新の投稿(順序のある箇条書き)</h2>
-    <ol class="comment2" id="commentlist">
-        <li id="comment_0"></li>
-        <li id="comment_1"></li>
-        <li id="comment_2"></li>
-        <li id="comment_3"></li>
-        <li id="comment_4"></li>
-        <li id="comment_5"></li>
-        <li id="comment_6"></li>
-        <li id="comment_7"></li>
-        <li id="comment_8"></li>
-        <li id="comment_9"></li>
-    </ol>
+    <!--jQueryの読み込み-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!--スライドショー（slick）-->
+    <script  src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script  type="text/javascript" src="{% static 'chatapp/js/slick-thumbnail.js' %}"></script>
+
+    <!--このテンプレート専用のスクリプト-->
+    <script  type="text/javascript" src="{% static 'chatapp/js/main.js' %}"></script>
+
+</head>
+
+<body>
+
+    <div id="container">
+    
+    <header>
+    <h1 id="logo"><a href="{% url 'index' %}"><img src="{% static 'chatapp/images/logo.jpg' %}" alt="なにかをいれる"></a></h1>
+    <nav class="category-menu">
+    <ul>
+    <li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
+    <li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
+    <li><a href="{% url 'index' %}"><span class="line1"><span>HOME</span>ページ</span><span class="line2">HOME page.</span></a></li>
+
+    </ul>
+    </nav>
+    </header>
+
+
+
+<div id="contents">
+
+<main class="column">
+
+<div class="main">
+
+<section>
+
+<h2><span><i class="fas fa-exchange-alt"></i>本番</span><span>real</span></h2>
+
+
+<p>ここに文章</p>
+<span class="look">program<span class="color-check">red</span>これは例文</span><br>
+
+
+<h2>詳細</h2>
+<p>aaaaaaaa</p>
+
+<h3>動画</h3>
+<p>mp4<br></p>
+<div class="photo c"><video src="{% static 'chatapp/images/movie.mp4' %}" controls muted playsinline></div>
+
+<h3>YouTubeからiframe</h3>
+<p>動画のアスペクト比は16:9<br></p>
+<div class="photo iframe-box"><iframe width="560" height="315" src="https://www.youtube.com/embed/3kPH7kTphnE?si=FOgq21_eN0mb9IkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+
+</section>
+<table class="ta1">
+    
+    <div>
+        <div class="LINK">
+        <input type="text" id="youtubeurl" placeholder="YouTube Video Link">
+        <button onclick="getchatapi()" id="startbutton">Get</button>
+        <button type="button" onclick="getchatstopapi()" >Stop</button>
+    
+    </div>
+    </div>
+
+
+    <h1 id="video-title">Title</h1>
+	<caption>最新の投稿</caption>
+	<tr id="comment_0">
+	<th>見出し</th>
+	<td>サンプルテキスト。</td>
+	</tr>
+
+	<tr id="comment_1">
+	<th>見出し</th>
+	<td>サンプルテキスト。</td>
+	</tr>	
+    
+    <tr id="comment_2">
+	<th>見出し</th>
+	<td>サンプルテキスト。</td>
+	</tr>	
+    
+    <tr id="comment_3">
+	<th>見出し</th>
+	<td>サンプルテキスト。</td>
+	</tr>	
+    
+    <tr id="comment_4">
+	<th>見出し</th>
+	<td>サンプルテキスト。</td>
+	</tr>	
+    
+    <tr id="comment_5">
+	<th>見出し</th>
+	<td>サンプルテキスト。</td>
+	</tr>
+	</table>
+
+
+<p class="back"><a href="javascript:history.back()">前のページに戻る</a></p>
+
+<!--/#contents-->
+
+<!--ページの上部へ戻るボタン-->
+<div class="pagetop"><a href="#"><i class="fas fa-angle-double-up"></i></a></div>
+
+
+
+<!--開閉ブロック-->
+<div id="menubar">
+
+<nav class="category-menu">
+<ul>
+<li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
+<li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
+<li><a href="{% url 'index' %}"><span class="line1"><span>ホーム</span></span><span class="line2">Home.</span></a></li>
+</ul>
+</nav>
+</div>
+<!--/#menubar-->
+
+<!--開閉ボタン（ハンバーガーアイコン）-->
+<div id="menubar_hdr">
+<span></span><span></span><span></span>
+</div>
+</div>
+</main>
 </div>
 
-<nav class="main-menu">
-    <div>
-        <a class="logo" href="">
-        </a>
     </div>
-    <div class="settings"></div>
-    <div class="scrollbar" id="style-1">
-        <ul>
-            <li>
-                <a href="../chatapp/index.html">
-                    <i class="fa fa-home fa-lg"></i>
-                    <span class="nav-text">Home</span>
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa fa-user fa-lg"></i>
-                    <span class="nav-text">Login</span>
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa fa-envelope-o fa-lg"></i>
-                    <span class="nav-text">Contact</span>
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa fa-question-circle fa-lg"></i>
-                    <span class="nav-text">Setting</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
 </body>
+
 </html>
+
+
