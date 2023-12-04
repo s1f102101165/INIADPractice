@@ -245,13 +245,13 @@ def input_database(labels, all_comments):
         new_cluster_label = labels[i]
         new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
         new_anti_label = labels[i]
-        new_anti = not (new_anti_label in already_labels)
+        new_anti_display = not (new_anti_label in already_labels)
 
         # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
         if (new_cluster_display):
             already_labels.append(new_cluster_label)
 
-        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_label = new_anti_label, anti = new_anti)
+        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_label = new_anti_label, anti_display = new_anti_display)
         comment.save()
     return
 
