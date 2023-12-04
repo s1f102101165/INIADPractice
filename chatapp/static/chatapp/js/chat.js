@@ -79,7 +79,6 @@ function getchatapi(){
             console.log("[エラー]:何らかの理由でタイトル取得できてないです")
         })
 
-
         reset_api()
         intervalId = setInterval(() => getChatLoop(youtubeurl), 10000);
     }

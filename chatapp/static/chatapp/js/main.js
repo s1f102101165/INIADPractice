@@ -74,6 +74,12 @@ function getchatapi(){
         let youtubeurl = document.getElementById("youtubeurl").value;
         youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
 
+
+        // 埋め込み動画書き換え
+        let youtubeMovieEmbedded = document.getElementById('youtubeMovieEmbedded');
+        let newYoutubeUrl = 'https://www.youtube.com/embed/' + youtubeurl + "?autoplay=1&mute=1";
+        youtubeMovieEmbedded.setAttribute('src', newYoutubeUrl);
+
         
         // 動画のタイトル取得(取得出来たらcallback_settitle関数実行して表示)
         fetch ("/api/getmovieapi/?youtubeurl=" + youtubeurl)
