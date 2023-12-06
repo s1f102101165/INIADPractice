@@ -11,7 +11,7 @@ class Comments(models.Model):
     cluster_label = models.IntegerField(default=-1) #クラスター番号。おそらく表示したり使ったりはしないけど一応保存しとく
     cluster_display = models.BooleanField(default=False) #クラスタリングした結果、表示するならTrueに（0~3の各分類からそれぞれの代表コメントを1つずつ選んでtrueにする）
     anti_label = models.BooleanField(default=False) #アンチコメントかどうか
-    anti_display = models.BooleanField(default=False) #アンチコメントかどうか
+    #anti_display = models.BooleanField(default=False) #アンチコメントかどうか
     
     def __str__(self):
         return self.body

@@ -11,6 +11,7 @@ import fasttext
 import os
 import MeCab
 import openai
+import time
 
 openai.api_key = "chHJM8Hh_9xSdUvtIKDyWgT9x8BOubw8AMXdvSyUBBEG4YzQMKtUI0Xi6x8Gx1N8Rcoamjl9tNxxmgY79Jaxwwg"
 openai.api_base = "https://api.openai.iniad.org/api/v1"
@@ -38,6 +39,7 @@ def chat(request):
 def getchattest(request):
     return render(request, "chatapp/getchattest.html")
 def cluster_data(comments, fasttext_model):
+    print("Cluster Data - Comments:", comments)
     vectorized_comments = []
     vector_dim = fasttext_model.get_dimension()  # ベクトルの次元数を取得
     tagger = MeCab.Tagger("-Owakati") # 文字列を単語に区切るルールを指定
@@ -55,14 +57,13 @@ def cluster_data(comments, fasttext_model):
         kmeans = KMeans(n_clusters=min(n_clusters, len(vectorized_comments)), n_init=10, verbose=1, random_state=42).fit(vectorized_comments)
     else:
         print("No comments were vectorized.")
-    labels = kmeans.labels_
-    print("[", labels, "]")
-    clustered_comments = {}
-    for i, label in enumerate(labels):
-        if label not in clustered_comments:
-            clustered_comments[label] = []
-        clustered_comments[label].append(comments[i])
-    return clustered_comments, labels
+
+    clustered_comments = {label: [] for label in set(kmeans.labels_)}
+    
+    for label, comment in zip(kmeans.labels_, comments):
+        clustered_comments[label].append(comment)
+
+    return clustered_comments
 
 
 # 動画タイトル取得用関数
@@ -150,10 +151,13 @@ def get_chat(video_id, pageToken, api_key):
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
     print("なかみ",comments)
     # 抽出したコメントをクラスタリング
-    clustered_comments, clustered_labels = cluster_data(comments, fasttext_model)  
-    anti_comments, anti_labels = run_moderation_api(comments)
+    clustered_comments = cluster_data(comments, fasttext_model)  
     print("クラスタリング:",clustered_comments)
-    print("アンチ:",anti_comments)
+    #ここでclustered_commentsを使う
+    print("Ttttttttttttttt")
+    anti_comments, anti_labels = run_moderation_api(clustered_comments)
+    print("eeeeeeeeeeeeeeeeeeeee")
+    print("アンチ:",anti_comments,anti_labels)
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
     userobj.nextPageToken = response_data["nextPageToken"]
@@ -161,7 +165,7 @@ def get_chat(video_id, pageToken, api_key):
 
     # クラスタリング結果をデータベースに保存
     # 番号（ラベル）、コメント一覧
-    input_database(clustered_labels, response_data["items"])
+    #input_database(clustered_labels, response_data["items"])
     input_database(anti_labels, response_data["items"])
     return {}
 
@@ -196,40 +200,37 @@ def get_chat_id(video_id):
     return chat_id
 
 # Moderation APIを実行する関数を定義する
-def run_moderation_api(comments):
-    #コメント取得、保存の部分をなくす
-    """
-    api_key = YT_API_KEY  
 
-    url = 'https://www.googleapis.com/youtube/v3/liveChat/messages'
-    chat_id = get_chat_id(video_id)
-    params = {
-        'key': api_key,
-        'liveChatId': chat_id,
-        'part': 'id,snippet,authorDetails',
-        'maxResults': MAX_GET_CHAT
-    }
-    response_data = requests.get(url, params=params).json()
-    """
-    label = []
-    # 閾値
+def run_moderation_api(clustered_comments):
+    anti_comments = {label: [] for label in clustered_comments}
     threshold = 0.001
+    label = None
 
-    # コメントの処理
-    for item in comments:
-        response = openai.Moderation.create(
-            input=item
-        )
-        category_scores = response['results'][0]['category_scores']
-        violence_score = category_scores.get('hate', 0)  # 'hate'カテゴリが存在しない場合は0をデフォルトとする
+    try:
+        for label, comments in clustered_comments.items():
+            for comment in comments:
+                #print(f"Processing comment: {comment}")
+                response = openai.Moderation.create(input=str(comment))
+                #print(f"API Response: {response}")
 
-        if violence_score > threshold:
-            label.append("true")
-            print(f"アンチコメント: {item}, Violence Score: {violence_score}")
-        else:
-            label.append("false")
-            print(f"アンチコメント以外: {item}, Violence Score: {violence_score}")
-    return comments, label
+                category_scores = response['results'][0]['category_scores']
+                #print(f"Category Scores: {category_scores}")
+                violence_score = category_scores.get('hate', 0)
+
+                if violence_score > threshold:
+                    anti_comments[label].append({"comment": comment, "is_ant": True})
+                    #print(f"アンチコメント（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
+                else:
+                    anti_comments[label].append({"comment": comment, "is_ant": False})
+                    #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
+                time.sleep(2)
+                #print("SUCCESS", anti_comments, label)
+    except Exception as e:
+        print(f"Error in run_moderation_api: {e}")
+
+    return anti_comments, label
+
+
 
 # コメントをデータベースに格納する関数
 def input_database(labels, all_comments):
@@ -242,16 +243,16 @@ def input_database(labels, all_comments):
         new_posted_at = datetime.datetime.strptime(all_comments[i]["snippet"]["publishedAt"], "%Y-%m-%dT%H:%M:%S.%f%z") + datetime.timedelta(hours=9) #日本時間に合わせるため、文字列をdatetime型に変換したのち+9時間
         new_name = all_comments[i]["authorDetails"]["displayName"]
         new_userid = all_comments[i]["authorDetails"]["channelId"]
-        new_cluster_label = labels[i]
-        new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
+        #new_cluster_label = labels[i]
+        #new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
         new_anti_label = labels[i]
         new_anti_display = not (new_anti_label in already_labels)
 
         # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
-        if (new_cluster_display):
-            already_labels.append(new_cluster_label)
+        if (new_anti_display):
+            already_labels.append(new_anti_label)
 
-        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_label = new_anti_label, anti_display = new_anti_display)
+        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_display = new_cluster_display, anti_label = new_anti_label, anti_display = new_anti_display)
         comment.save()
     return
 
@@ -273,4 +274,4 @@ def reset_database():
 
 #==========☆コメントデータベースからコメントを抜粋する関数 ☆==========
 def choose_comment():
-    return Comments.objects.all().filter(anti=True).order_by("-posted_at")[:50] #表示ONなものだけ新着順で抽出。filterのカッコ内にカンマ区切りで条件付け加え可能。
+    return Comments.objects.all().filter(anti_label=True).order_by("-posted_at")[:50] #表示ONなものだけ新着順で抽出。filterのカッコ内にカンマ区切りで条件付け加え可能。
