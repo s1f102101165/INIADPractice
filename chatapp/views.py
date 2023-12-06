@@ -115,8 +115,6 @@ def api_getchat(request):
 def api_reset(request):
     reset_database()
     return JsonResponse({})
-    
-
 
 #==========☆YouTubeコメント欄取得関数 ☆==========
 MAX_GET_CHAT = 100 #1度の取得最大数
@@ -146,6 +144,7 @@ def get_chat(video_id, pageToken, api_key):
         print("Error from YouTube API:", response_data['error']['message'])
         # 必要に応じて、その他のエラーハンドリング処理を追加
         return {"errorcode":response_data['error']['message']}  # ここでは空のリストを返すことを例としています
+    
     # エラーがない場合、通常の処理を続行
     # 取得したデータからコメントの内容のみをリストとして抽出
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
