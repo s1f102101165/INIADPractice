@@ -232,7 +232,7 @@ def run_moderation_api(comments):
                 #anti_comments[label].append({"comment": comment, "is_ant": False})
                 #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
                 anti_judge_list.append({"result": False, "violence_score": violence_score})
-            time.sleep(1)
+            time.sleep(4)
             #print("SUCCESS", anti_comments, label)
     except Exception as e:
         print(f"Error in run_moderation_api: {e}")
@@ -261,7 +261,7 @@ def input_database(clusterd_labels, anti_judge_list, all_comments):
         new_cluster_label = clusterd_labels[i]
         new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
         new_anti_violence_score = anti_judge_list[i]["violence_score"]
-        new_anti_display = not anti_judge_list[i]["result"] #not (new_anti_label in already_labels)
+        new_anti_display = not anti_judge_list[i]["result"] #アンチ(True)と判定されたら表示はしない(Falseに変換)
 
         # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
         if (new_cluster_label):
