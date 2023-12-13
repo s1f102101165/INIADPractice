@@ -12,6 +12,8 @@ import os
 import MeCab
 import openai
 import time
+import logging
+import datetime
 
 openai.api_key = "chHJM8Hh_9xSdUvtIKDyWgT9x8BOubw8AMXdvSyUBBEG4YzQMKtUI0Xi6x8Gx1N8Rcoamjl9tNxxmgY79Jaxwwg"
 openai.api_base = "https://api.openai.iniad.org/api/v1"
@@ -152,11 +154,17 @@ def get_chat(video_id, pageToken, api_key):
     # 抽出したコメントをクラスタリング
     clustered_comments = cluster_data(comments, fasttext_model)  
     print("クラスタリング:",clustered_comments)
-    #ここでclustered_commentsを使う
-    print("Ttttttttttttttt")
-    anti_comments, anti_labels = run_moderation_api(clustered_comments)
-    print("eeeeeeeeeeeeeeeeeeeee")
-    print("アンチ:",anti_comments,anti_labels)
+    # アンチコメントを判定し、データベースに保存
+    # アンチコメントを判定し、データベースに保存
+    anti_comments = run_moderation_api(clustered_comments)
+    for label, comment_pairs in anti_comments.items():
+        for comment in comment_pairs:
+            try:
+                # データベースに保存
+                input_database(label, comment)
+            except Exception as e:
+                print(f"Error processing comment: {comment}, Error: {e}")
+
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
     userobj.nextPageToken = response_data["nextPageToken"]
@@ -165,7 +173,7 @@ def get_chat(video_id, pageToken, api_key):
     # クラスタリング結果をデータベースに保存
     # 番号（ラベル）、コメント一覧
     #input_database(clustered_labels, response_data["items"])
-    input_database(anti_labels, response_data["items"])
+
     return {}
 
 
@@ -200,7 +208,7 @@ def get_chat_id(video_id):
 
 # Moderation APIを実行する関数を定義する
 
-def run_moderation_api(clustered_comments):
+"""def run_moderation_api(clustered_comments):
     anti_comments = {label: [] for label in clustered_comments}
     threshold = 0.001
     label = None
@@ -227,12 +235,34 @@ def run_moderation_api(clustered_comments):
     except Exception as e:
         print(f"Error in run_moderation_api: {e}")
 
-    return anti_comments, label
+    return anti_comments, label"""
 
+def run_moderation_api(comments):
+    #閾値
+    threshold = 0.001
+    anti_comments = {}
+    
+    for label, comment_list in comments.items():
+        anti_comments[label] = []
+        for comment in comment_list:
+            try:
+                time.sleep(2)
+                response = openai.Moderation.create(comment)
+                category_scores = response['results'][0]['category_scores']
+                
+                # 他のカテゴリも考慮
+                is_anti = any(score > threshold for score in category_scores.values())
+                
+                anti_comments[label].append((comment, is_anti))  # コメントとそのアンチラベルをペアで保存
+            except Exception as e:
+                print(f"Error processing comment: {comment}, Error: {e}")
+
+
+    return anti_comments
 
 
 # コメントをデータベースに格納する関数
-def input_database(labels, all_comments):
+"""def input_database(labels, all_comments):
 
     already_labels = [] #登場したラベルを格納していくリスト
 
@@ -242,8 +272,8 @@ def input_database(labels, all_comments):
         new_posted_at = datetime.datetime.strptime(all_comments[i]["snippet"]["publishedAt"], "%Y-%m-%dT%H:%M:%S.%f%z") + datetime.timedelta(hours=9) #日本時間に合わせるため、文字列をdatetime型に変換したのち+9時間
         new_name = all_comments[i]["authorDetails"]["displayName"]
         new_userid = all_comments[i]["authorDetails"]["channelId"]
-        #new_cluster_label = labels[i]
-        #new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
+        new_cluster_label = labels[i]
+        new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
         new_anti_label = labels[i]
         new_anti_display = not (new_anti_label in already_labels)
 
@@ -251,8 +281,34 @@ def input_database(labels, all_comments):
         if (new_anti_display):
             already_labels.append(new_anti_label)
 
-        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_display = new_cluster_display, anti_label = new_anti_label, anti_display = new_anti_display)
+        comment = Comments(body=new_body, posted_at=new_posted_at, name=new_name, userid=new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_label=new_anti_label, anti_display=new_anti_display)
+        logging.debug()
         comment.save()
+        logging.debug()
+    return"""
+
+
+def input_database(labels, clustered_comments):
+    already_labels = set() #登場したラベルを格納していくリスト
+
+    # 全部のコメントを取り出し、格納
+    for label, comments in clustered_comments.items():
+        for i, comment in enumerate(comments):
+            new_body = comment["snippet"]["displayMessage"]
+            new_posted_at = datetime.datetime.strptime(comment["snippet"]["publishedAt"], "%Y-%m-%dT%H:%M:%S.%f%z") + datetime.timedelta(hours=9) #日本時間に合わせるため、文字列をdatetime型に変換したのち+9時間
+            new_name = comment["authorDetails"]["displayName"]
+            new_userid = comment["authorDetails"]["channelId"]
+            new_cluster_label = label
+            new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
+            new_anti_label = labels[i]
+            new_anti_display = not (new_anti_label in already_labels)
+
+            # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
+            if (new_anti_display):
+                already_labels.append(new_anti_label)
+
+            comment = Comments(body=new_body, posted_at=new_posted_at, name=new_name, userid=new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_label=new_anti_label, anti_display=new_anti_display)
+            comment.save()
     return
 
 
