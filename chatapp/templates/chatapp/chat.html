@@ -28,12 +28,15 @@
     <div id="container">
     
     <header>
+            <!--
     <h1 id="logo"><a href="{% url 'index' %}"><img src="{% static 'chatapp/images/logo.jpg' %}" alt="なにかをいれる"></a></h1>
+    -->
+
     <nav class="category-menu">
     <ul>
+    <li><a href="{% url 'index' %}"><span class="line1"><span>HOME</span>ページ</span><span class="line2">HOME page.</span></a></li>
     <li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
     <li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
-    <li><a href="{% url 'index' %}"><span class="line1"><span>HOME</span>ページ</span><span class="line2">HOME page.</span></a></li>
 
     </ul>
     </nav>
@@ -51,10 +54,14 @@
 
 <h2><span><i class="fas fa-exchange-alt"></i>本番</span><span>real</span></h2>
 
+    <!--
 
 <p>ここに文章</p>
 <span class="look">program<span class="color-check">red</span>これは例文</span><br>
 
+-->
+
+    <!--
 
 <h2>詳細</h2>
 <p>aaaaaaaa</p>
@@ -63,13 +70,10 @@
 <p>mp4<br></p>
 <div class="photo c"><video src="{% static 'chatapp/images/movie.mp4' %}" controls muted playsinline></div>
 
-<h3>YouTubeからiframe</h3>
-<p>動画のアスペクト比は16:9<br></p>
-<div class="photo iframe-box"><iframe id="youtubeMovieEmbedded" width="560" height="315" src="https://www.youtube.com/embed/3kPH7kTphnE?si=FOgq21_eN0mb9IkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+    -->
 
-</section>
 <table class="ta1">
-    
+
     <div>
         <div class="LINK">
         <input type="text" id="youtubeurl" placeholder="YouTube Video Link">
@@ -79,39 +83,72 @@
     </div>
     </div>
 
+<h1 id="video-title">Title</h1>
+<caption>最新の投稿</caption>
+<tr>
+<th id="commentTitle_0"></th>
+<td id="comment_0"></td>
+</tr>
 
-    <h1 id="video-title">Title</h1>
-	<caption>最新の投稿</caption>
-	<tr>
-	<th id="commentTitle_0"></th>
-	<td id="comment_0"></td>
-	</tr>
+<tr>
+<th id="commentTitle_1"></th>
+<td id="comment_1"></td>
+</tr>	
 
-	<tr>
-	<th id="commentTitle_1"></th>
-	<td id="comment_1"></td>
-	</tr>	
-    
-    <tr>
-	<th id="commentTitle_2"></th>
-	<td id="comment_2"></td>
-	</tr>	
-    
-    <tr>
-	<th id="commentTitle_3"></th>
-	<td id="comment_3"></td>
-	</tr>	
-    
-    <tr>
-	<th id="commentTitle_4"></th>
-	<td id="comment_4"></td>
-	</tr>	
-    
-    <tr>
-	<th id="commentTitle_5"></th>
-	<td id="comment_5"></td>
-	</tr>
-	</table>
+<tr>
+<th id="commentTitle_2"></th>
+<td id="comment_2"></td>
+</tr>	
+
+<tr>
+<th id="commentTitle_3"></th>
+<td id="comment_3"></td>
+</tr>	
+
+<tr>
+<th id="commentTitle_4"></th>
+<td id="comment_4"></td>
+</tr>	
+
+<tr>
+<th id="commentTitle_5"></th>
+<td id="comment_5"></td>
+</tr>
+
+<tr>
+    <th id="commentTitle_6"></th>
+    <td id="comment_6"></td>
+</tr>
+
+<tr>
+    <th id="commentTitle_7"></th>
+    <td id="comment_7"></td>
+</tr>
+
+<tr>
+    <th id="commentTitle_8"></th>
+    <td id="comment_8"></td>
+</tr>
+
+<tr>
+    <th id="commentTitle_9"></th>
+    <td id="comment_9"></td>
+</tr>
+
+<tr>
+    <th id="commentTitle_10"></th>
+    <td id="comment_10"></td>
+</tr>
+
+
+</table>
+    <!--
+<h3>YouTubeからiframe</h3>
+-->
+<p>動画のアスペクト比は16:9<br></p>
+<div class="photo iframe-box"><iframe id="youtubeMovieEmbedded" width="560" height="315" src="https://www.youtube.com/embed/3kPH7kTphnE?si=FOgq21_eN0mb9IkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+
+</section>
 
 
 <p class="back"><a href="javascript:history.back()">前のページに戻る</a></p>

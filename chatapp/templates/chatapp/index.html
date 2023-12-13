@@ -31,29 +31,29 @@
 
 
 <header>
-    <h1 id="logo"><a href="{% static index.html %}"></a>HOME</h1>
-    <nav class="category-menu">
-
-    </nav>
+    <img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
     </header>
-
+<!--サムネイルブロック
     
 <section>
 <div class="photo c"></div>
+<div class="thumbnail"></div>
+</section>
 
-<!--サムネイルブロック-->
-<div class="thumbnail">
+
 <img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
 <img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
 <img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
 </div>
-</section>
+
+-->
 
 <nav class="category-menu">
     <ul>
+        <li><a href="{% url 'index' %}"><span class="line1"><span>HOME</span>ページ</span><span class="line2">HOME page.</span></a></li>
     <li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
     <li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
-    <li><a href="{% url 'index' %}"><span class="line1"><span>HOME</span>ページ</span><span class="line2">HOME page.</span></a></li>
+ 
     </ul>
     </nav>
 
@@ -82,8 +82,8 @@
     <h2>よくある質問<span>追記</span></h2>
     <dl class="faq">
     
-    <dt class="openclose">ここに質問</dt>
-    <dd>ここに回答</dd>
+    <dt class="openclose">どうやって使うの？</dt>
+    <dd>YouTube Video Linkの空欄に精査をかけたいYouTubeの生配信のURLを貼り、「Get」ボタンを押すことで自動的にコメントが精査されます。</dd>
     
     </dl>
     
@@ -108,9 +108,10 @@
 
 <nav class="category-menu">
 <ul>
+    <li><a href="{% url 'index' %}"><span class="line1"><span>ホーム</span></span><span class="line2">Home.</span></a></li>
 <li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
 <li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
-<li><a href="{% url 'index' %}"><span class="line1"><span>ホーム</span></span><span class="line2">Home.</span></a></li>
+
 </ul>
 </nav>
 
