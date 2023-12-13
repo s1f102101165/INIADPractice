@@ -121,6 +121,9 @@ def api_reset(request):
 MAX_GET_CHAT = 20 #1度の取得最大数
 # YouTubeのチャットを取得する関数
 def get_chat(video_id, pageToken, api_key):
+
+    print("\nコメント取得完了開始\n")
+
     # video_idからchat_idを取得する関数（以前の部分で提供されていたと思われる）
     chat_id = get_chat_id(video_id)
     # YouTube APIのエンドポイント
@@ -151,9 +154,9 @@ def get_chat(video_id, pageToken, api_key):
     comments = [item["snippet"]["displayMessage"] for item in response_data["items"]]
     #print("なかみ",comments)
     # 抽出したコメントをクラスタリング
-    print("\nクラスタリング開始\n")
+    print("\nコメント取得完了\nクラスタリング開始\n")
     clustered_comments, clusterd_labels = cluster_data(comments, fasttext_model)  
-    print("\nクラスタリング終了\n")
+    print("\nクラスタリング終了")
     #print("クラスタリング:",clustered_comments)
     #ここでclustered_commentsを使う
     print("\nアンチコメントか判定開始\n")
@@ -224,11 +227,11 @@ def run_moderation_api(comments):
             if violence_score > threshold:
                 #anti_comments[label].append({"comment": comment, "is_ant": True})
                 #print(f"アンチコメント（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
-                anti_judge_list.append(True)
+                anti_judge_list.append({"result": True, "violence_score": violence_score})
             else:
                 #anti_comments[label].append({"comment": comment, "is_ant": False})
                 #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
-                anti_judge_list.append(False)
+                anti_judge_list.append({"result": False, "violence_score": violence_score})
             time.sleep(1)
             #print("SUCCESS", anti_comments, label)
     except Exception as e:
@@ -257,14 +260,14 @@ def input_database(clusterd_labels, anti_judge_list, all_comments):
         new_userid = all_comments[i]["authorDetails"]["channelId"]
         new_cluster_label = clusterd_labels[i]
         new_cluster_display = not (new_cluster_label in already_labels) # 初めてのラベルなら表示ON、そうでないなら表示OFF
-        new_anti_label = 0#labels[i]
-        new_anti_display = not anti_judge_list[i] #not (new_anti_label in already_labels)
+        new_anti_violence_score = anti_judge_list[i]["violence_score"]
+        new_anti_display = not anti_judge_list[i]["result"] #not (new_anti_label in already_labels)
 
         # 表示ONならこのラベル初登場なので、登場したラベルリストに加えておく
-        if (new_anti_display):
-            already_labels.append(new_anti_label)
+        if (new_cluster_label):
+            already_labels.append(new_cluster_label)
 
-        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_display = new_cluster_display, anti_label = new_anti_label, anti_display = new_anti_display)
+        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_display = new_cluster_display, anti_violence_score = new_anti_violence_score, anti_display = new_anti_display)
         comment.save()
     return
 
