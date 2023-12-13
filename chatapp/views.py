@@ -232,7 +232,7 @@ def run_moderation_api(comments):
                 #anti_comments[label].append({"comment": comment, "is_ant": False})
                 #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
                 anti_judge_list.append({"result": False, "violence_score": violence_score})
-            time.sleep(2)
+            time.sleep(4)
             #print("SUCCESS", anti_comments, label)
     except Exception as e:
         print(f"Error in run_moderation_api: {e}")
