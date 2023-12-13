@@ -118,7 +118,7 @@ def api_reset(request):
     return JsonResponse({})
 
 #==========☆YouTubeコメント欄取得関数 ☆==========
-MAX_GET_CHAT = 20 #1度の取得最大数
+MAX_GET_CHAT = 10 #1度の取得最大数
 # YouTubeのチャットを取得する関数
 def get_chat(video_id, pageToken, api_key):
 
@@ -232,7 +232,7 @@ def run_moderation_api(comments):
                 #anti_comments[label].append({"comment": comment, "is_ant": False})
                 #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
                 anti_judge_list.append({"result": False, "violence_score": violence_score})
-            time.sleep(4)
+            time.sleep(6)
             #print("SUCCESS", anti_comments, label)
     except Exception as e:
         print(f"Error in run_moderation_api: {e}")
