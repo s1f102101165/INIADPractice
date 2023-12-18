@@ -73,6 +73,12 @@ function getchatapi(){
 
         let youtubeurl = document.getElementById("youtubeurl").value;
         youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
+        youtubeurl = youtubeurl.replace("https://www.youtube.com/live/", "")
+        
+        youtubeurl += "&"
+        youtubeurl = youtubeurl.substr(0, youtubeurl.indexOf('&'));
+
+        youtubeurl += "?"
         youtubeurl = youtubeurl.substr(0, youtubeurl.indexOf('?'));
 
 
