@@ -73,6 +73,8 @@ function getchatapi(){
 
         let youtubeurl = document.getElementById("youtubeurl").value;
         youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
+        youtubeurl = youtubeurl.substr(0, youtubeurl.indexOf('?'));
+
 
 
         // 埋め込み動画書き換え
