@@ -80,7 +80,7 @@ function getchatapi(){
         })
 
         reset_api()
-        intervalId = setInterval(() => getChatLoop(youtubeurl), 1000000);
+        intervalId = setInterval(() => getChatLoop(youtubeurl), 3000);
     }
 }
 

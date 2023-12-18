@@ -102,10 +102,6 @@ def api_getchat(request):
     result = get_chat(video_id, nextPageToken, api_key)
     # DBからコメント抽出
     newdata = list(choose_comment().values())
-
-    # エラーが出てうまく動いていないならコメントではなくエラーを返す
-    """if ("errorcode" in result):
-        newdata = result"""
     
     if ("errorcode" in result):
         newdata = result
@@ -142,6 +138,10 @@ def get_chat(video_id, pageToken, api_key):
 
     # YouTube APIを呼び出し、結果をJSONとして取得
     response_data = requests.get(url, params=params).json()
+
+    # 取得したコメントが0なら終了。
+    if (response_data["pageInfo"]["totalResults"] == 0):
+        return {}
 
     # APIの応答に 'error' キーが存在する場合、エラーハンドリングを行う
     if 'error' in response_data:
@@ -232,7 +232,7 @@ def run_moderation_api(comments):
                 #anti_comments[label].append({"comment": comment, "is_ant": False})
                 #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
                 anti_judge_list.append({"result": False, "violence_score": violence_score})
-            time.sleep(5)
+            time.sleep(2)
             #print("SUCCESS", anti_comments, label)
     except Exception as e:
         print(f"Error in run_moderation_api: {e}")

@@ -91,6 +91,7 @@ function getchatapi(){
 
 
         reset_api()
+        use_getchatapi(youtubeurl);
         intervalId = setInterval(() => getChatLoop(youtubeurl), 10000);
     }
 }
