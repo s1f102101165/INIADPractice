@@ -142,6 +142,11 @@ def get_chat(video_id, pageToken, api_key):
     # 取得したコメントが0なら終了。
     if (response_data["pageInfo"]["totalResults"] == 0):
         return {}
+    
+    # nextPageTokenを設定
+    userobj = User.objects.get(pk=1)
+    userobj.nextPageToken = response_data["nextPageToken"]
+    userobj.save()
 
     # APIの応答に 'error' キーが存在する場合、エラーハンドリングを行う
     if 'error' in response_data:
@@ -163,10 +168,7 @@ def get_chat(video_id, pageToken, api_key):
     anti_comments, anti_labels, anti_judge_list = run_moderation_api(comments)
     print("\n判定終了\n")
     print("アンチ:",anti_comments,anti_labels)
-    # nextPageTokenを設定
-    userobj = User.objects.get(pk=1)
-    userobj.nextPageToken = response_data["nextPageToken"]
-    userobj.save()
+
 
     # クラスタリング結果をデータベースに保存
     # 番号（ラベル）、コメント一覧
