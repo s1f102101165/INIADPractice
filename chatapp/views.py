@@ -208,7 +208,7 @@ def get_chat_id(video_id):
 
 def run_moderation_api(comments):
     anti_comments = {label: [] for label in comments}
-    threshold = 0.001 #閾値
+    threshold = 0.0001 #閾値
     label = None
     anti_judge_list = [] #アンチコメントかどうかの判定結果一覧のリスト
 
