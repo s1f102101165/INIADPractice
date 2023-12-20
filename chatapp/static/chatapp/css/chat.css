@@ -1,6 +1,6 @@
 body
 {
-  margin:1px;
+  margin:0px;
   padding-left: 8%;
   padding-right: 5%;
   font-family:  "ヒラギノ角ゴ ProN W3", "Yu Gothic","Open Sans", arial;
@@ -10,62 +10,67 @@ body
 
 }
 
-
+LINK{
+  left: 8%;
+}
 
 h1{
   margin: 20px 20px 20px 20px;
     padding: 2% 8%;
-    font-weight:200;
+    font-size: calc(20px + 16 * (100vw - 500px) / 600);
     background-color : #595959 ;
     position: relative;
     text-align:  center; 
     }
 
 .black{
-  margin: 20px 20px 20px 20px;
+  margin: 20px 10px 20px 20px;
     padding: 2% 3%;
-    font-weight:180;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
     background-color : #404040 ;
     position: absolute;
     top: 13%;
     left: 8%;
-    right: 49.5%;
+    right: 50%;
+    
     }
 
+.black2{
+  margin: 20px 10px 20px 20px;
+    padding: 2% 8%;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
+    background-color : #363636 ;
+    position: absolute;
+    top: 25%;
+    left: 8%;
+    right: 50%;
+    line-height: 200%;
+    }
+      
 .comments{
-  margin: 20px 20px 20px 20px;
+  margin: 20px 20px 20px 10px;
     padding: 2% 3%;
-    font-weight:180;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
     background-color : #404040 ;
     position: absolute;
     top: 13%;
-    left: 51.5%;
+    left: 51%;
     right: 5%;
     }
 
 .comment2{
-  margin: 20px 20px 20px 20px;
-    padding: 2% 3%;
-    font-weight:200;
+  margin: 20px 20px 20px 10px;
+    padding: 2% 8%;
+    font-size: calc(10px + 16 * (100vw - 500px) / 600);
     background-color : #363636 ;
     position: absolute;
-    top: 23.5%;
-    left: 51.5%;
+    top: 25%;
+    left: 51%;
     right: 5%;
     line-height: 200%;
     }
 
-.black2{
-  margin: 20px 20px 20px 20px;
-    padding: 2% 3%;
-    font-weight:400;
-    background-color : #363636 ;
-    position: absolute;
-    top: 23.5%;
-    left: 8%;
-    right: 49.5%;
-    line-height: 200%;
-    }
+
 
 
 @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
@@ -147,7 +152,7 @@ display: table-cell;
 width: 55px;
 height: 36px;
 text-align: center;
-top:12px; 
+top:10px; 
 font-size:20px;
 
 }
@@ -172,20 +177,20 @@ width:55px;
 overflow:hidden;
 -webkit-transition:width .2s linear;
 transition:width .2s linear;
--webkit-transform:translateZ(0) scale(1,1);
+transform:translateZ(0) scale(1,1);
 box-shadow: 1px 0 15px rgba(0, 0, 0, 0.07);
   opacity:1;
 }
 
 .main-menu>ul {
-margin:7px 0;
+margin:1px 0;
 
 }
 
 .main-menu li {
 position:relative;
 display:block;
-width:250px;
+width:50px;
 padding-top: 3px;
 
 
@@ -193,14 +198,14 @@ padding-top: 3px;
 
 .main-menu li>a {
 position:relative;
-width:255px;
+width:25px;
 display:table;
 border-collapse:collapse;
 border-spacing:0;
 color:#8a8a8a;
 font-size: 13px;
 text-decoration:none;
--webkit-transform:translateZ(0) scale(1,1);
+transform:translateZ(0) scale(1,1);
 -webkit-transition:all .14s linear;
 transition:all .14s linear;
 font-family: 'Strait', sans-serif;
@@ -216,7 +221,7 @@ text-shadow: 1px 1px 1px  #fff;
 position:relative;
 display:table-cell;
 vertical-align:middle;
-width:190px;
+width:20px;
 font-family: 'Titillium Web', sans-serif;
 }
 

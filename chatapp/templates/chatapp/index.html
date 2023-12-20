@@ -1,14 +1,132 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-  </head>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Chat Guardian</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<link rel="stylesheet" href="{% static 'chatapp/css/style.css' %}">
+<!-- HTMLドキュメントのヘッドに追加 -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-  <body>
-    <h1>情報連携実習</h1>
-    <a href="{% url 'chat' %}">本番用ページ</a><br>
-    <a href="{% url 'getchattest' %}">動作テスト用ページ</a>
-  </body>
+<!--jQueryの読み込み-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!--スライドショー（slick）-->
+<script  src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script  type="text/javascript" src="{% static 'chatapp/js/slick-thumbnail.js' %}"></script>
+
+<!--このテンプレート専用のスクリプト-->
+<script  type="text/javascript" src="{% static 'chatapp/js/main.js' %}"></script>
+
+</head>
+
+<body>
+
+<div id="container">
+
+
+
+
+<header>
+    <img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
+    </header>
+<!--サムネイルブロック
+    
+<section>
+<div class="photo c"></div>
+<div class="thumbnail"></div>
+</section>
+
+
+<img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
+<img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
+<img src="{% static 'chatapp/images/logo.jpg'  %}" alt="">
+</div>
+
+-->
+
+<nav class="category-menu">
+    <ul>
+        <li><a href="{% url 'index' %}"><span class="line1"><span>HOME</span>ページ</span><span class="line2">HOME page.</span></a></li>
+    <li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
+    <li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
+ 
+    </ul>
+    </nav>
+
+
+<div id="contents">
+
+<main>
+
+
+<section>
+
+<h2>進捗とお知らせ</h2>
+
+<dl class="new">
+<dt>2023/11/15<span>HTML/CSS</span></dt>
+<dd>Webpage作成</dd>
+<dt>2023/00/00</dt>
+<dd>サンプルテキスト</dd>
+</dl>
+
+</section>
+
+
+<section>
+
+    <h2>よくある質問<span>追記</span></h2>
+    <dl class="faq">
+    
+    <dt class="openclose">どうやって使うの？</dt>
+    <dd>YouTube Video Linkの空欄に精査をかけたいYouTubeの生配信のURLを貼り、「Get」ボタンを押すことで自動的にコメントが精査されます。</dd>
+    
+    <dt class="openclose">動画が表示されない？</dt>
+    <dd>スーパーリロード（Ctrl+F5 or command+Shift+R）かURLの&より手前の文字をURLに入れてください</dd>
+    
+    </dl>
+    
+    </section>
+    <div class="pagetop"><a href="#"><i class="fas fa-angle-double-up"></i></a></div>
+
+
+</main>
+
+</div>
+<!--/#contents-->
+
+
+
+
+</div>
+<!--/#container-->
+
+<!--開閉ブロック-->
+<div id="menubar">
+
+
+<nav class="category-menu">
+<ul>
+    <li><a href="{% url 'index' %}"><span class="line1"><span>ホーム</span></span><span class="line2">Home.</span></a></li>
+<li><a href="{% url 'chat' %}"><span class="line1"><span>本番</span>ページ</span><span class="line2">The actual play.</span></a></li>
+<li><a href="{% url 'getchattest' %}"><span class="line1"><span>テスト</span>ページ</span><span class="line2">Test page.</span></a></li>
+
+</ul>
+</nav>
+
+</div>
+<!--/#menubar-->
+
+<!--開閉ボタン（ハンバーガーアイコン）-->
+<div id="menubar_hdr">
+<span></span><span></span><span></span>
+</div>
+
+
+
+</body>
 </html>

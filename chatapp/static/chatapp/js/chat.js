@@ -1,3 +1,5 @@
+let now_motion = false;
+
 
 // タイマーIDを保存する変数の定義
 let intervalId;
@@ -32,8 +34,10 @@ function callback(json){
         clearInterval(intervalId)
         
         if (json["errorcode"] == "The request is missing a valid API key."){alert("[エラー]\nAPIキーが正しくないです！\nviews.pyを確認してください！")}
-        else if (json["errorcode"] == "No filter selected. Expected one of: liveChatId"){alert("[エラー]\nライブ配信のURLが正しくないです！\n（通常の動画や、ライブ配信のアーカイブなどでは動作しません）")}
+        else if (json["errorcode"] == "No filter selected. Expected one of: liveChatId"){alert("[エラー]\nライブ配信のURLが正しくないです！\nスペルミスやコピペミスがないかご確認ください。\n（通常の動画や、ライブ配信のアーカイブなどでは動作しません）")}
         else {alert("[エラー]\n何かしらのエラーによりコメントが取得できませんでした")}
+        now_motion = false;
+        change_start_butoon()
     }else{
         // エラーなく正常に動作した場合の処理
         n = json.length;
@@ -45,31 +49,55 @@ function callback(json){
     }
 }
 
+// エンターキーを検知し、チャット取得関数起動
+window.document.onkeydown = function(event){
+    if( event.key === 'Enter' ){
+        getchatapi();
+    }
+};
+
+
 // ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
 function getchatapi(){
-    clearInterval(intervalId)
-    delete_comment()
-
-    let youtubeurl = document.getElementById("youtubeurl").value;
-    //var regex = "https://www.youtube.com/watch?v="; //正規表現生成
+    if (!now_motion){
+        now_motion = true;
+        change_start_butoon()
 
 
-    
-    youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
+        clearInterval(intervalId)
+        delete_comment()
 
-    
-    // 動画のタイトル取得(取得出来たらcallback_settitle関数実行して表示)
-    fetch ("/api/getmovieapi/?youtubeurl=" + youtubeurl)
-    .then(response => response.json())
-    .then(callback_movie)
-    .catch(error =>{
-        console.log("[エラー]:何らかの理由でタイトル取得できてないです")
-    })
+        let youtubeurl = document.getElementById("youtubeurl").value;
+        youtubeurl = youtubeurl.replace("https://www.youtube.com/watch?v=", "")
 
+        
+        // 動画のタイトル取得(取得出来たらcallback_settitle関数実行して表示)
+        fetch ("/api/getmovieapi/?youtubeurl=" + youtubeurl)
+        .then(response => response.json())
+        .then(callback_movie)
+        .catch(error =>{
+            console.log("[エラー]:何らかの理由でタイトル取得できてないです")
+        })
 
-    reset_api()
-    intervalId = setInterval(() => getChatLoop(youtubeurl), 10000);
+        reset_api()
+        intervalId = setInterval(() => getChatLoop(youtubeurl), 3000);
+    }
 }
+
+// スタートボタンの表示チェンジ
+function change_start_butoon(){
+    if (now_motion){
+        // ボタン　押せなくする
+        document.getElementById("startbutton").disabled = "disabled";
+    }else{
+        // ボタン　通常に
+        document.getElementById("startbutton").disabled = false;
+        document.getElementById("startbutton").style.opacity = "1.0";
+        document.getElementById("startbutton").style.pointer.events= "none";
+    }
+}
+
+
 
 // 動画のタイトル取得したらHTMLをタイトルに書き換え
 function callback_movie(json){
@@ -88,6 +116,10 @@ function delete_comment(){
 // ボタンがクリックされたときに呼び出され、チャットの取得を停止する関数
 function getchatstopapi(){
     clearInterval(intervalId)
+
+    // ボタン有効に
+    now_motion = false;
+    change_start_butoon()
 }
 
 // 一定間隔でチャットを取得する関数
