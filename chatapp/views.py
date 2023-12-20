@@ -214,7 +214,7 @@ def get_chat_id(video_id):
         chat_id = liveStreamingDetails['activeLiveChatId']
     except :
         chat_id = None
-        print("[views.pyのget_chat_id関数からのお知らせ]\n何かしらの問題によりチャットidが取得できませんでした。\nAPIキーの間違いや、動画URLの間違いなどが考えられます\n（ライブ配信でない動画や、ライブ配信のアーカイブのチャット欄は取得できません。）\n")
+        print("[views.pyのget_chat_id関数からのお知らせ]\n何かしらの問題によりチャットidが取得できませんでした。\nAPIキーの間違いや、動画URLの間違いなどが考えられます\n（ライブ配信でない動画や、ライブ配信のアーカイブのチャット欄は取得できません。\nまた、コメントが不可な生配信もこのエラーが出ます。）\n")
     
 
     return chat_id
@@ -287,7 +287,7 @@ def input_database(clusterd_labels, anti_judge_list, all_comments, clusterd_disp
         new_anti_violence_score = anti_judge_list[i]["violence_score"]
         new_anti_display = anti_judge_list[i]["result"] #アンチジャナイコメントは表示OK(1)、アンチコメントは表示NG(-1)、未判定のものも表示しな(0)。
 
-        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_display = new_cluster_display, anti_violence_score = new_anti_violence_score, anti_display = new_anti_display)
+        comment = Comments(body = new_body, posted_at = new_posted_at, name = new_name, userid = new_userid, cluster_label = new_cluster_label, cluster_display = new_cluster_display, anti_violence_score = new_anti_violence_score, anti_display = new_anti_display)
         comment.save()
     return
 
