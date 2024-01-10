@@ -49,14 +49,11 @@ def api_changeCommentFastMode(request):
 
 # アンチコメントフィルターレベル変更
 def api_changeCommentFileterLevel(request):
-
     # nextPageTokenを設定
     userobj = User.objects.get(pk=1)
-    userobj.commentFilterLevel = int(request.GET["newLevel"])
+    userobj.commentFilterLevel = 2
     userobj.save()
-
-
-    return JsonResponse({"result": "ok"})
+    return 
 
 
 def cluster_data(comments, fasttext_model):
@@ -248,9 +245,7 @@ def get_chat_id(video_id):
 
 def run_moderation_api(comments, clusterd_display):
     anti_comments = {label: [] for label in comments}
-    thresholdList = [0, 0.0002, 0.0001, 0.00002] #未使用、弱、中、強
-    threshold = thresholdList[User.objects.get(pk=1).commentFilterLevel]
-
+    threshold = 0.0001 #閾値
     label = None
     anti_judge_list = [] #アンチコメントかどうかの判定結果一覧のリスト
 
@@ -326,6 +321,8 @@ def input_database(clusterd_labels, anti_judge_list, all_comments, clusterd_disp
 
 # 取得したコメントをリセット。全部消す関数。
 def reset_database():
+    for comment in Comments.objects.all():
+        comment.delete()
     try:
         userobj = User.objects.get(pk=1)
         userobj.nextPageToken = "0"
@@ -333,10 +330,6 @@ def reset_database():
     except:
         userobj = User(nextPageToken = "0")
         userobj.save()
-
-    for comment in Comments.objects.all():
-        comment.delete()
-        
     return
 
 
