@@ -38,6 +38,24 @@ def chat(request):
 # 動作確認用に一時的に作ったページです。
 def getchattest(request):
     return render(request, "chatapp/getchattest.html")
+
+# アンチコメント判定モード変更
+def api_changeCommentFastMode(request):
+    # nextPageTokenを設定
+    userobj = User.objects.get(pk=1)
+    userobj.commentFastMode = 1 - userobj.commentFastMode
+    userobj.save()
+    return JsonResponse({"result": "ok"})
+
+# アンチコメントフィルターレベル変更
+def api_changeCommentFileterLevel(request):
+    # nextPageTokenを設定
+    userobj = User.objects.get(pk=1)
+    userobj.commentFilterLevel = 2
+    userobj.save()
+    return 
+
+
 def cluster_data(comments, fasttext_model):
     
 
@@ -193,8 +211,12 @@ def get_chat(video_id, pageToken, api_key):
 def view_comments(request):
     # データベースからコメントを取得
     comments = Comments.objects.all().order_by("-posted_at")[:50]
+    modelist = ["全部のコメントをアンチコメントか判定するモード(低速)", "分類わけの結果をもとに、表示予定のコメントだけ判定するモード(高速)"]
+    commentFastMode = User.objects.get(pk=1).commentFastMode
+
     context = {
-        "comments": comments
+        "comments": comments,
+        "Fastmode": modelist[commentFastMode]
     }
     return render(request, "chatapp/getchattest.html", context)
 
@@ -232,8 +254,10 @@ def run_moderation_api(comments, clusterd_display):
     try:
         for i in range(len(comments)):
 
+            commentFastMode = User.objects.get(pk=1).commentFastMode
+
             # クラスタリングした結果、表示しないのであればアンチコメントの判定はしない
-            if(clusterd_display[i] == -1):
+            if(clusterd_display[i] == -1 and commentFastMode == 1):
                 anti_judge_list.append({"result": 0, "violence_score": 0.0})
                 continue
 
@@ -258,7 +282,9 @@ def run_moderation_api(comments, clusterd_display):
                 #anti_comments[label].append({"comment": comment, "is_ant": False})
                 #print(f"アンチコメント以外（クラスタ {label}）: {comment}, Violence Score: {violence_score}")
                 anti_judge_list.append({"result": 1, "violence_score": violence_score})
-            #time.sleep(2)
+            
+            if (commentFastMode == 0):
+                time.sleep(2)
             #print("SUCCESS", anti_comments, label)
     except Exception as e:
         print(f"Error in run_moderation_api: {e}")

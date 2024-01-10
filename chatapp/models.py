@@ -20,3 +20,5 @@ class Comments(models.Model):
 class User(models.Model):
     nextPageToken = models.TextField() #どこまでコメントを読み込んだかを一時保存するトークン
     useOpenAIAPI = models.TextField(default="") #オップンAIのAPIを保存する用の項目。開発中に班員さんと同じタイミングでアプリを使った際にバッティングしないようにするために使うかも。開発用の項目で、本番では使わない。
+    commentFastMode = models.IntegerField(default=1) #コメント分類機能で振り分けた結果、表示されないコメントのアンチコメント判定をすっ飛ばすかどうか
+    commentFilterLevel = models.IntegerField(default=2) #アンチコメントのフィルターレベル 1:弱 2:中 3:強

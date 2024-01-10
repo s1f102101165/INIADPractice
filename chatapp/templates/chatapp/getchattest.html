@@ -11,6 +11,10 @@
     <h1>YouTubeチャット取得テストページ</h1>
     <p>ライブ配信中のコメント欄のみ取得できます。通常の動画や、ライブ配信のアーカイブでは動作しません。</p>
     <p>本番用ページは<a href="{% url 'chat' %}">こちら</a></p>
+
+    <p>現在は {{Fastmode}} です。<button type="button" onclick="changeFastMode()">モード変更</button></p>
+
+
     <form>
       
       <label style="display: none;" for="apikey">[APIキーはプログラム内に入力しないでOK]Youtube API Key = </label>

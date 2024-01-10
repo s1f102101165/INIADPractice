@@ -46,3 +46,10 @@ function getchatstopapi(){
 function getChatLoop(apikey, youtubeurl){
     use_getchatapi(apikey, youtubeurl);
 }
+
+
+// 高速低速モード変更
+async function changeFastMode(){
+    const res = await fetch("/api/changeCommentFastMode/")
+    location.reload()
+}
