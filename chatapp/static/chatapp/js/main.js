@@ -95,10 +95,13 @@ function getchatapi(){
         .then(callback_movie)
         .catch(error =>{
             console.log("[エラー]:何らかの理由でタイトル取得できてないです")
-        })
+        })        
 
 
         reset_api()
+        changeFilterLevel()
+
+
         use_getchatapi(youtubeurl);
         intervalId = setInterval(() => getChatLoop(youtubeurl), 10000);
     }
@@ -109,11 +112,30 @@ function change_start_butoon(){
     if (now_motion){
         // ボタン　押せなくする
         document.getElementById("startbutton").disabled = "disabled";
+        
+        // フィルタリングレベルラジオボタン
+        let elements = document.getElementsByName('filterLevel');
+        let len = elements.length;
+    
+        for (let i = 0; i < len; i++){
+            elements.item(i).disabled = "disabled";
+        }
+
     }else{
         // ボタン　通常に
         document.getElementById("startbutton").disabled = false;
-        document.getElementById("startbutton").style.opacity = "1.0";
-        document.getElementById("startbutton").style.pointer.events= "none";
+        //document.getElementById("startbutton").style.opacity = "1.0";
+        //document.getElementById("startbutton").style.pointer.events= "none";
+
+
+        // フィルタリングレベルラジオボタン
+        let elements = document.getElementsByName('filterLevel');
+        let len = elements.length;
+    
+        for (let i = 0; i < len; i++){
+            elements.item(i).disabled = false;
+        }
+        
     }
 }
 
@@ -148,6 +170,23 @@ function getChatLoop(youtubeurl){
 }
 
 
+// フィルターレベル変更
+function changeFilterLevel(){
+
+    let elements = document.getElementsByName('filterLevel');
+    let len = elements.length;
+    let newLevel = '4';
+
+    for (let i = 0; i < len; i++){
+        if (elements.item(i).checked){
+            newLevel = elements.item(i).value;
+        }
+    }
+
+    fetch("/api/changeCommentFileterLevel/?newLevel=" + newLevel)
+
+    return
+}
 
 
 

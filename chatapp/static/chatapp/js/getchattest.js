@@ -33,9 +33,10 @@ function callback(json){
 }
 // ボタンがクリックされたときに呼び出され、チャットの取得を開始する関数
 function getchatapi(){
+    reset_api()
+
     let apikey = document.getElementById("apikey").value;
     let youtubeurl = document.getElementById("youtubeurl").value;
-    reset_api()
     intervalId = setInterval(() => getChatLoop(apikey, youtubeurl), 10000);
 }
 // ボタンがクリックされたときに呼び出され、チャットの取得を停止する関数
