@@ -19,4 +19,4 @@ class Comments(models.Model):
 # 本アプリ使用者(配信者)に関するデータベース
 class User(models.Model):
     nextPageToken = models.TextField() #どこまでコメントを読み込んだかを一時保存するトークン
-    useOpenAIAPI = models.TextField(default="") #オップンAIのAPIを保存する用の項目。開発中に班員さんと同じタイミングでアプリを使った際にバッティングしないようにするため。開発用の項目で、本番では使わない。
+    useOpenAIAPI = models.TextField(default="") #オップンAIのAPIを保存する用の項目。開発中に班員さんと同じタイミングでアプリを使った際にバッティングしないようにするために使うかも。開発用の項目で、本番では使わない。
