@@ -103,7 +103,7 @@ function getchatapi(){
 
 
         use_getchatapi(youtubeurl);
-        intervalId = setInterval(() => getChatLoop(youtubeurl), 10000);
+        intervalId = setInterval(() => getChatLoop(youtubeurl), 5000);
     }
 }
 
