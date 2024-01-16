@@ -73,6 +73,8 @@ def cluster_data(comments, fasttext_model):
         vectors = [fasttext_model.get_word_vector(word) for word in words]
         if vectors:
             avg_vector = sum(vectors) / len(vectors)
+            for i in range(len(vectors)):
+                print(words[i], ":", sum(vectors[i])/len(vectors[i]))
         else:
             avg_vector = [0] * vector_dim
         vectorized_comments.append(avg_vector)
